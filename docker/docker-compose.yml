@@ -1,0 +1,26 @@
+services:
+  cobalt-api:
+    image: ghcr.io/imputnet/cobalt:latest
+    container_name: clipbot-cobalt
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    environment:
+      API_URL: "http://localhost:9000/"
+      API_PORT: "9000"
+      API_AUTH_REQUIRED: "false"
+      DURATION_LIMIT: "10800"
+      RATELIMIT_MAX: "100"
+      RATELIMIT_WINDOW: "60"
+      TUNNEL_RATELIMIT_MAX: "100"
+      CORS_WILDCARD: "true"
+    # Uncomment for age-restricted YouTube videos:
+    # volumes:
+    #   - ./cookies.json:/app/cookies.json:ro
+    # environment:
+    #   COOKIE_PATH: /app/cookies.json
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

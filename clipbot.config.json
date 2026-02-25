@@ -1,0 +1,20 @@
+{
+  "cobaltUrl": "http://localhost:9000",
+  "claudeModel": "claude-sonnet-4-20250514",
+  "accounts": {
+    "tiktok": "699d13658ab8ae478b3fe2ab",
+    "youtube": "699d13808ab8ae478b3fe2d9",
+    "instagram": "699d12838ab8ae478b3fe186",
+    "facebook": "699d130f8ab8ae478b3fe25c"
+  },
+  "defaultQuality": "1080",
+  "defaultMaxClips": 5,
+  "defaultMinScore": 7,
+  "defaultMaxDuration": 59,
+  "outputDir": "./clipbot-output",
+  "niche": "cannabis",
+  "subtitles": true,
+  "padBefore": 1.5,
+  "padAfter": 0.5,
+  "defaultPlatforms": ["tiktok", "youtube", "instagram"]
+}
