@@ -1,0 +1,102 @@
+@import "tailwindcss";
+
+/* ── Color tokens: @theme (not inline) so utilities use var() and dark overrides work ── */
+@theme {
+  --color-background: #F2F2F7;
+  --color-foreground: #1C1C1E;
+  --color-accent: #007AFF;
+  --color-brand-gold: #FF9500;
+  --color-surface-0: #F2F2F7;
+  --color-surface-1: #FFFFFF;
+  --color-surface-2: #E5E5EA;
+  --color-surface-3: #D1D1D6;
+  --color-border: #C7C7CC;
+  --color-muted: #8E8E93;
+}
+
+/* ── Font tokens: inline because they reference var() ── */
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/*
+ * Dark overrides — unlayered html.dark beats @layer theme :root
+ * so these always win over the @theme defaults.
+ */
+html.dark {
+  --color-background: #050507;
+  --color-foreground: #F5F5F7;
+  --color-accent: #0A84FF;
+  --color-brand-gold: #FF9F0A;
+  --color-surface-0: #050507;
+  --color-surface-1: #1C1C1E;
+  --color-surface-2: #2C2C2E;
+  --color-surface-3: #3A3A3C;
+  --color-border: #3D3D40;
+  --color-muted: #98989D;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "SF Pro",
+    "Segoe UI", Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Polaris-style elevation shadows ── */
+.shadow-elevation-1 {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+.shadow-elevation-2 {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+.shadow-elevation-3 {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+html.dark .shadow-elevation-1 {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+html.dark .shadow-elevation-2 {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+html.dark .shadow-elevation-3 {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* ── Keyframes ── */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* ── Shimmer skeleton ── */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-2) 25%,
+    var(--color-surface-3) 50%,
+    var(--color-surface-2) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* ── Float animation ── */
+.float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-muted); border-radius: 3px; opacity: 0.3; }
+
+::selection { background: var(--color-accent); color: #fff; }

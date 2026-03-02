@@ -1,0 +1,423 @@
+[
+  {
+    "runId": "4f826de5",
+    "sourceUrl": "https://www.youtube.com/watch?v=teMiim4RyzQ",
+    "status": "complete",
+    "options": {
+      "quality": "1080",
+      "maxClips": 5,
+      "minScore": 7,
+      "maxDuration": 59,
+      "platforms": [
+        "tiktok",
+        "youtube",
+        "instagram"
+      ],
+      "subtitles": true,
+      "niche": "cannabis",
+      "backgroundFillStyle": "blurred-zoom"
+    },
+    "startedAt": "2026-03-02T04:27:02.586Z",
+    "outputDir": "C:\\Users\\worra\\OneDrive\\Desktop\\clipbot\\clipbot-output\\4f826de5",
+    "pid": 26892,
+    "completedAt": "2026-03-02T04:27:41.338Z"
+  },
+  {
+    "runId": "90f7736a",
+    "sourceUrl": "https://www.youtube.com/watch?v=6QX4LuhS0xU",
+    "status": "failed",
+    "options": {
+      "quality": "1080",
+      "maxClips": 5,
+      "minScore": 7,
+      "maxDuration": 59,
+      "platforms": [
+        "tiktok",
+        "youtube",
+        "instagram"
+      ],
+      "subtitles": true,
+      "niche": "cannabis",
+      "backgroundFillStyle": "blurred-zoom"
+    },
+    "startedAt": "2026-03-02T04:27:02.453Z",
+    "outputDir": "C:\\Users\\worra\\OneDrive\\Desktop\\clipbot\\clipbot-output\\90f7736a",
+    "pid": 47980
+  },
+  {
+    "runId": "6133ac50",
+    "sourceUrl": "https://www.youtube.com/watch?v=pJ0IjFM35Bk",
+    "status": "complete",
+    "options": {
+      "quality": "1080",
+      "maxClips": 5,
+      "minScore": 7,
+      "maxDuration": 55,
+      "platforms": [
+        "tiktok",
+        "youtube",
+        "instagram"
+      ],
+      "subtitles": true,
+      "niche": "cannabis",
+      "backgroundFillStyle": "blurred-zoom"
+    },
+    "startedAt": "2026-02-27T21:55:31.812Z",
+    "outputDir": "C:\\Users\\worra\\OneDrive\\Desktop\\clipbot\\clipbot-output\\6133ac50",
+    "pid": 3232,
+    "completedAt": "2026-02-27T22:07:00.387Z"
+  },
+  {
+    "runId": "bd645fcf",
+    "sourceUrl": "https://www.youtube.com/watch?v=eWkvYBWHC2c",
+    "status": "complete",
+    "options": {
+      "quality": "1080",
+      "maxClips": 5,
+      "minScore": 7,
+      "maxDuration": 59,
+      "platforms": [],
+      "subtitles": true,
+      "niche": "cannabis"
+    },
+    "startedAt": "2026-02-27T14:39:24.761Z",
+    "outputDir": "C:\\Users\\worra\\OneDrive\\Desktop\\clipbot\\clipbot-output\\bd645fcf",
+    "completedAt": "2026-02-27T14:41:01.300Z"
+  },
+  {
+    "runId": "6ea34c2a",
+    "sourceUrl": "https://www.youtube.com/watch?v=eWkvYBWHC2c",
+    "status": "complete",
+    "options": {
+      "quality": "1080",
+      "maxClips": 5,
+      "minScore": 7,
+      "maxDuration": 59,
+      "platforms": [],
+      "subtitles": true,
+      "niche": "cannabis",
+      "backgroundFillStyle": "blurred-zoom"
+    },
+    "startedAt": "2026-02-27T14:34:32.532Z",
+    "outputDir": "C:\\Users\\worra\\OneDrive\\Desktop\\clipbot\\clipbot-output\\6ea34c2a",
+    "pid": 148584,
+    "completedAt": "2026-02-27T14:37:57.084Z"
+  },
+  {
+    "runId": "7ef1a07a",
+    "sourceUrl": "https://www.youtube.com/watch?v=eWkvYBWHC2c",
+    "status": "failed",
+    "options": {
+      "quality": "1080",
+      "maxClips": 5,
+      "minScore": 7,
+      "maxDuration": 59,
+      "platforms": [],
+      "subtitles": true,
+      "niche": "cannabis",
+      "backgroundFillStyle": "blurred-zoom"
+    },
+    "startedAt": "2026-02-27T14:16:28.528Z",
+    "outputDir": "C:\\Users\\worra\\OneDrive\\Desktop\\clipbot\\clipbot-output\\7ef1a07a"
+  },
+  {
+    "runId": "3d36d866",
+    "sourceUrl": "https://www.youtube.com/watch?v=eWkvYBWHC2c",
+    "status": "failed",
+    "options": {
+      "quality": "1080",
+      "maxClips": 5,
+      "minScore": 7,
+      "maxDuration": 59,
+      "platforms": [],
+      "subtitles": true,
+      "niche": "cannabis"
+    },
+    "startedAt": "2026-02-26T23:50:25.159Z",
+    "outputDir": "C:\\Users\\worra\\OneDrive\\Desktop\\clipbot\\clipbot-output\\3d36d866"
+  },
+  {
+    "runId": "12bb54a0",
+    "sourceUrl": "https://www.youtube.com/watch?v=q70hCC2nKdw",
+    "status": "complete",
+    "options": {
+      "quality": "1080",
+      "maxClips": 5,
+      "minScore": 7,
+      "maxDuration": 59,
+      "platforms": [],
+      "subtitles": true,
+      "niche": "cannabis"
+    },
+    "startedAt": "2026-02-26T19:07:57.821Z",
+    "completedAt": "2026-02-26T19:14:14.593Z",
+    "outputDir": "C:\\Users\\worra\\OneDrive\\Desktop\\clipbot\\clipbot-output\\12bb54a0"
+  },
+  {
+    "runId": "cbc87512",
+    "sourceUrl": "https://www.youtube.com/watch?v=q70hCC2nKdw",
+    "status": "failed",
+    "options": {
+      "quality": "1080",
+      "maxClips": 5,
+      "minScore": 7,
+      "maxDuration": 59,
+      "platforms": [],
+      "subtitles": true,
+      "niche": "cannabis"
+    },
+    "startedAt": "2026-02-26T18:44:00.655Z",
+    "outputDir": "C:\\Users\\worra\\OneDrive\\Desktop\\clipbot\\clipbot-output\\cbc87512"
+  },
+  {
+    "runId": "b021e114",
+    "sourceUrl": "https://www.youtube.com/watch?v=q70hCC2nKdw",
+    "status": "failed",
+    "options": {
+      "quality": "1080",
+      "maxClips": 5,
+      "minScore": 7,
+      "maxDuration": 59,
+      "platforms": [],
+      "subtitles": true,
+      "niche": "cannabis"
+    },
+    "startedAt": "2026-02-26T18:14:54.751Z",
+    "outputDir": "C:\\Users\\worra\\OneDrive\\Desktop\\clipbot\\clipbot-output\\b021e114"
+  },
+  {
+    "runId": "44ccea4b",
+    "sourceUrl": "https://www.youtube.com/watch?v=q70hCC2nKdw",
+    "status": "failed",
+    "options": {
+      "quality": "1080",
+      "maxClips": 5,
+      "minScore": 7,
+      "maxDuration": 59,
+      "platforms": [],
+      "subtitles": true,
+      "niche": "cannabis"
+    },
+    "startedAt": "2026-02-26T18:13:52.129Z",
+    "outputDir": "C:\\Users\\worra\\OneDrive\\Desktop\\clipbot\\clipbot-output\\44ccea4b"
+  },
+  {
+    "runId": "871c1690",
+    "sourceUrl": "https://www.youtube.com/watch?v=QV6yaamUzkE",
+    "status": "complete",
+    "options": {
+      "quality": "1080",
+      "maxClips": 5,
+      "minScore": 7,
+      "maxDuration": 59,
+      "platforms": [],
+      "subtitles": true,
+      "niche": "cannabis"
+    },
+    "startedAt": "2026-02-25T17:42:11.460Z",
+    "completedAt": "2026-02-25T17:44:42.586Z",
+    "outputDir": "C:\\Users\\worra\\OneDrive\\Desktop\\clipbot\\clipbot-output\\871c1690"
+  },
+  {
+    "runId": "e7a4464e",
+    "sourceUrl": "https://www.youtube.com/watch?v=QV6yaamUzkE",
+    "status": "complete",
+    "options": {
+      "quality": "1080",
+      "maxClips": 5,
+      "minScore": 7,
+      "maxDuration": 59,
+      "platforms": [],
+      "subtitles": true,
+      "niche": "cannabis"
+    },
+    "startedAt": "2026-02-24T16:54:18.747Z",
+    "completedAt": "2026-02-24T16:58:48.079Z",
+    "outputDir": "C:\\Users\\worra\\OneDrive\\Desktop\\clipbot\\clipbot-output\\e7a4464e"
+  },
+  {
+    "runId": "8c789040",
+    "sourceUrl": "https://www.youtube.com/watch?v=QV6yaamUzkE",
+    "status": "complete",
+    "options": {
+      "quality": "1080",
+      "maxClips": 5,
+      "minScore": 7,
+      "maxDuration": 59,
+      "platforms": [],
+      "subtitles": true,
+      "niche": "cannabis"
+    },
+    "startedAt": "2026-02-24T16:41:51.230Z",
+    "completedAt": "2026-02-24T16:43:21.553Z",
+    "outputDir": "C:\\Users\\worra\\OneDrive\\Desktop\\clipbot\\clipbot-output\\8c789040"
+  },
+  {
+    "runId": "3de0fa37",
+    "sourceUrl": "https://www.youtube.com/watch?v=QV6yaamUzkE",
+    "status": "complete",
+    "options": {
+      "quality": "1080",
+      "maxClips": 5,
+      "minScore": 7,
+      "maxDuration": 59,
+      "platforms": [],
+      "subtitles": true,
+      "niche": "cannabis"
+    },
+    "startedAt": "2026-02-24T14:59:03.034Z",
+    "completedAt": "2026-02-24T15:02:38.046Z",
+    "outputDir": "C:\\Users\\worra\\OneDrive\\Desktop\\clipbot\\clipbot-output\\3de0fa37"
+  },
+  {
+    "runId": "4833d132",
+    "sourceUrl": "https://www.youtube.com/watch?v=QV6yaamUzkE",
+    "status": "complete",
+    "options": {
+      "quality": "1080",
+      "maxClips": 5,
+      "minScore": 7,
+      "maxDuration": 59,
+      "platforms": [],
+      "subtitles": true,
+      "niche": "cannabis"
+    },
+    "startedAt": "2026-02-24T14:46:22.320Z",
+    "completedAt": "2026-02-24T14:49:47.721Z",
+    "outputDir": "C:\\Users\\worra\\OneDrive\\Desktop\\clipbot\\clipbot-output\\4833d132"
+  },
+  {
+    "runId": "eaf8cc92",
+    "sourceUrl": "https://www.youtube.com/watch?v=QV6yaamUzkE",
+    "status": "complete",
+    "options": {
+      "quality": "1080",
+      "maxClips": 5,
+      "minScore": 7,
+      "maxDuration": 59,
+      "platforms": [],
+      "subtitles": true,
+      "niche": "cannabis"
+    },
+    "startedAt": "2026-02-24T14:41:32.132Z",
+    "completedAt": "2026-02-24T14:44:54.397Z",
+    "outputDir": "C:\\Users\\worra\\OneDrive\\Desktop\\clipbot\\clipbot-output\\eaf8cc92"
+  },
+  {
+    "runId": "316781c5",
+    "sourceUrl": "https://www.youtube.com/watch?v=QV6yaamUzkE",
+    "status": "complete",
+    "options": {
+      "quality": "1080",
+      "maxClips": 5,
+      "minScore": 7,
+      "maxDuration": 59,
+      "platforms": [],
+      "subtitles": true,
+      "niche": "cannabis"
+    },
+    "startedAt": "2026-02-24T03:17:15.445Z",
+    "completedAt": "2026-02-24T03:20:41.205Z",
+    "outputDir": "C:\\Users\\worra\\OneDrive\\Desktop\\clipbot\\clipbot-output\\316781c5"
+  },
+  {
+    "runId": "d8730639",
+    "sourceUrl": "https://www.youtube.com/watch?v=QV6yaamUzkE",
+    "status": "complete",
+    "options": {
+      "quality": "1080",
+      "maxClips": 5,
+      "minScore": 7,
+      "maxDuration": 59,
+      "platforms": [],
+      "subtitles": true,
+      "niche": "cannabis"
+    },
+    "startedAt": "2026-02-24T02:51:15.804Z",
+    "completedAt": "2026-02-24T02:55:35.131Z",
+    "outputDir": "C:\\Users\\worra\\OneDrive\\Desktop\\clipbot\\clipbot-output\\d8730639"
+  },
+  {
+    "runId": "b08fb7e3",
+    "sourceUrl": "https://www.youtube.com/watch?v=QV6yaamUzkE",
+    "status": "complete",
+    "options": {
+      "quality": "1080",
+      "maxClips": 5,
+      "minScore": 7,
+      "maxDuration": 59,
+      "platforms": [],
+      "subtitles": true,
+      "niche": "cannabis"
+    },
+    "startedAt": "2026-02-24T02:28:55.162Z",
+    "completedAt": "2026-02-24T02:34:39.597Z",
+    "outputDir": "C:\\Users\\worra\\OneDrive\\Desktop\\clipbot\\clipbot-output\\b08fb7e3"
+  },
+  {
+    "runId": "17c2d9a6",
+    "sourceUrl": "https://www.youtube.com/watch?v=QV6yaamUzkE",
+    "status": "complete",
+    "options": {
+      "quality": "1080",
+      "maxClips": 5,
+      "minScore": 7,
+      "maxDuration": 59,
+      "platforms": [],
+      "subtitles": true,
+      "niche": "cannabis"
+    },
+    "startedAt": "2026-02-24T02:22:54.900Z",
+    "completedAt": "2026-02-24T02:28:37.993Z",
+    "outputDir": "C:\\Users\\worra\\OneDrive\\Desktop\\clipbot\\clipbot-output\\17c2d9a6"
+  },
+  {
+    "runId": "0bb350f9",
+    "sourceUrl": "https://www.youtube.com/watch?v=QV6yaamUzkE",
+    "status": "complete",
+    "options": {
+      "quality": "1080",
+      "maxClips": 5,
+      "minScore": 7,
+      "maxDuration": 59,
+      "platforms": [],
+      "subtitles": true,
+      "niche": "cannabis"
+    },
+    "startedAt": "2026-02-24T02:17:21.347Z",
+    "completedAt": "2026-02-24T02:21:00.446Z",
+    "outputDir": "C:\\Users\\worra\\OneDrive\\Desktop\\clipbot\\clipbot-output\\0bb350f9"
+  },
+  {
+    "runId": "28c10380",
+    "sourceUrl": "https://www.youtube.com/watch?v=QV6yaamUzkE",
+    "status": "failed",
+    "options": {
+      "quality": "1080",
+      "maxClips": 5,
+      "minScore": 7,
+      "maxDuration": 59,
+      "platforms": [],
+      "subtitles": true,
+      "niche": "cannabis"
+    },
+    "startedAt": "2026-02-24T02:10:46.379Z",
+    "outputDir": "C:\\Users\\worra\\OneDrive\\Desktop\\clipbot\\clipbot-output\\28c10380"
+  },
+  {
+    "runId": "f493bc9f",
+    "sourceUrl": "https://www.youtube.com/watch?v=KBnQxlipoIA",
+    "status": "failed",
+    "options": {
+      "quality": "1080",
+      "maxClips": 5,
+      "minScore": 7,
+      "maxDuration": 59,
+      "platforms": [],
+      "subtitles": true,
+      "niche": "cannabis"
+    },
+    "startedAt": "2026-02-24T02:08:59.728Z",
+    "outputDir": "C:\\Users\\worra\\OneDrive\\Desktop\\clipbot\\clipbot-output\\f493bc9f"
+  }
+]

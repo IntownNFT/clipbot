@@ -1,0 +1,38 @@
+{
+  "claudeModel": "claude-sonnet-4-20250514",
+  "claudeTemperature": 0.2,
+  "defaultQuality": "1080",
+  "defaultMaxClips": 5,
+  "defaultMinScore": 7,
+  "defaultMaxDuration": 59,
+  "niche": "cannabis",
+  "subtitles": true,
+  "padBefore": 1.5,
+  "padAfter": 0.5,
+  "backgroundFillStyle": "blurred-zoom",
+  "captionStyle": {
+    "fontFamily": "Arial",
+    "fontSize": 72,
+    "activeColor": "#FFD700",
+    "inactiveColor": "#FFFFFF99",
+    "outlineColor": "#000000",
+    "position": "bottom",
+    "maxWordsPerLine": 5,
+    "animationPreset": "typewriter",
+    "hookFontSize": 56,
+    "hookColor": "#FFFFFF",
+    "hookBgColor": "rgba(0,0,0,0.7)",
+    "hookPosition": "top"
+  },
+  "scoringWeights": {
+    "hook": 5,
+    "standalone": 3,
+    "controversy": 3,
+    "education": 3,
+    "emotion": 1.5,
+    "twist": 1.5,
+    "quotable": 1,
+    "visual": 1,
+    "nicheBonus": 1
+  }
+}
