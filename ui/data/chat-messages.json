@@ -1,0 +1,88 @@
+{
+  "clipbot-ai-chat": [
+    {
+      "id": "b34af485-c19a-42db-ae71-10c3ee43d0b2",
+      "threadId": "clipbot-ai-chat",
+      "role": "user",
+      "content": "hows it going",
+      "timestamp": "2026-03-02T19:13:15.190Z"
+    },
+    {
+      "id": "0ec32eb7-0c3c-4161-88cd-179081e3cbb3",
+      "threadId": "clipbot-ai-chat",
+      "role": "assistant",
+      "content": "Hey there! Things are going great - I'm here to help you manage your ClipBot workspace. \n\nYou're currently in your \"Default\" space. I can help you with things like:\n- Checking on your video processing runs\n- Scheduling clips for posting\n- Managing your tracked YouTube creators\n- Creating new workspaces\n- Viewing your settings\n\nWhat would you like to do today? Maybe check on some recent video processing or see what clips are ready to schedule?",
+      "timestamp": "2026-03-02T19:13:21.797Z"
+    },
+    {
+      "id": "b4560cc2-6e35-4fd8-a8e6-c55bda10af7a",
+      "threadId": "clipbot-ai-chat",
+      "role": "user",
+      "content": "now can you add this creator to our creator lists https://www.youtube.com/channel/UC_OEVIRPI6KQcb2h3gsq93Q",
+      "timestamp": "2026-03-02T19:49:50.580Z"
+    },
+    {
+      "id": "6502289f-1dfa-41d8-98e0-39aa22e49163",
+      "threadId": "clipbot-ai-chat",
+      "role": "assistant",
+      "content": "I'd be happy to add that YouTube creator to your list! I have the channel URL, but I'll need the channel name to add them properly.\n\nCould you tell me what the name of this YouTube channel is? Once I have that, I can add them to your tracked creators list.",
+      "timestamp": "2026-03-02T19:49:53.082Z"
+    },
+    {
+      "id": "157935c1-c18d-4a40-92da-f10005c80286",
+      "threadId": "clipbot-ai-chat",
+      "role": "user",
+      "content": "Humboldt seed company is the name of the channel",
+      "timestamp": "2026-03-02T19:50:13.473Z"
+    },
+    {
+      "id": "f3eee889-e281-4454-a4fd-ab1b42ad4f9d",
+      "threadId": "clipbot-ai-chat",
+      "role": "assistant",
+      "content": "[Tool call: add_creator]",
+      "toolCalls": [
+        {
+          "id": "toolu_017dFmaxN6CvEvUiAdFQr8dP",
+          "name": "add_creator",
+          "input": {
+            "channelName": "Humboldt seed company",
+            "channelUrl": "https://www.youtube.com/channel/UC_OEVIRPI6KQcb2h3gsq93Q"
+          }
+        }
+      ],
+      "toolResults": [
+        {
+          "toolCallId": "toolu_017dFmaxN6CvEvUiAdFQr8dP",
+          "name": "add_creator",
+          "result": {
+            "success": true,
+            "id": "628262bc-1040-4213-8d85-8bfb710c95f7",
+            "channelName": "Humboldt seed company"
+          }
+        }
+      ],
+      "timestamp": "2026-03-02T19:50:16.208Z"
+    },
+    {
+      "id": "9d4ed0ad-101a-4419-aead-fdca69e2f9e2",
+      "threadId": "clipbot-ai-chat",
+      "role": "assistant",
+      "content": "Perfect! I've successfully added \"Humboldt seed company\" to your tracked creators list. The channel is now being tracked and you'll be able to process their videos through ClipBot.\n\nBy default, auto-processing is turned off, so new videos from this channel won't be automatically processed - you'll need to manually trigger processing when you want to create clips from their content. If you'd like to enable auto-processing for this creator later, just let me know!",
+      "timestamp": "2026-03-02T19:50:20.164Z"
+    },
+    {
+      "id": "e3b2f5a5-2e81-4317-941d-6c3322731866",
+      "threadId": "clipbot-ai-chat",
+      "role": "user",
+      "content": "okay can you download the recent video and start pipeline",
+      "timestamp": "2026-03-02T20:27:17.015Z"
+    },
+    {
+      "id": "c96f6473-e5f8-4d8b-be62-6a59eac920eb",
+      "threadId": "clipbot-ai-chat",
+      "role": "assistant",
+      "content": "I can help you get that set up! However, I don't currently have a tool to directly start the video processing pipeline for a specific creator's recent video. \n\nTo download and process Humboldt seed company's recent video, you'll need to:\n\n1. Go to their channel and copy the URL of the specific video you want to process\n2. Use ClipBot's main interface to paste that video URL and start the processing pipeline\n\nOnce you've started the processing, I can help you monitor the progress by checking your recent runs, and later help you schedule any clips that get created from the video.\n\nWould you like me to check your current processing runs to see what's already in progress?",
+      "timestamp": "2026-03-02T20:27:22.647Z"
+    }
+  ]
+}
