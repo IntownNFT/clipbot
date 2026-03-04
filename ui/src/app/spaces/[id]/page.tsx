@@ -6,9 +6,12 @@ import { motion } from "motion/react";
 import { SpaceHeader } from "@/components/spaces/SpaceHeader";
 import { SpacePanel } from "@/components/spaces/SpacePanel";
 import { PromptInput } from "@/components/chat/PromptInput";
+import { ChatFeed } from "@/components/chat/ChatFeed";
 import { useSpace } from "@/contexts/SpaceContext";
 import { useThreads } from "@/hooks/useThreads";
 import { useThread } from "@/contexts/ThreadContext";
+import { useAiChat } from "@/hooks/useAiChat";
+import { normalizeUrl } from "@/lib/utils";
 import { Loader2, Clock, Film, MoreHorizontal } from "lucide-react";
 import { timeAgo } from "@/lib/utils";
 import type { SpaceSettings } from "@/lib/types";
@@ -31,12 +34,13 @@ export default function SpaceDetailPage({ params }: { params: Promise<{ id: stri
   const routerRef = useRef(router);
   routerRef.current = router;
   const { setActiveSpace } = useSpace();
-  const { setActiveThread, setChatThreadId } = useThread();
-  const { threads, addRun } = useThreads();
+  const { activeThreadId, setActiveThread, chatThreadId, setChatThreadId } = useThread();
+  const { threads, loading, addRun, refetch } = useThreads();
+  const { sendMessage, aiMessages, isThinking } = useAiChat(chatThreadId);
 
   const [space, setSpace] = useState<SpaceData | null>(null);
   const [globalSettings, setGlobalSettings] = useState<AppSettings>({});
-  const [loading, setLoading] = useState(true);
+  const [pageLoading, setPageLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
     try {
@@ -56,7 +60,7 @@ export default function SpaceDetailPage({ params }: { params: Promise<{ id: stri
     } catch {
       routerRef.current.push("/");
     } finally {
-      setLoading(false);
+      setPageLoading(false);
     }
   }, [id]);
 
@@ -76,7 +80,6 @@ export default function SpaceDetailPage({ params }: { params: Promise<{ id: stri
 
   const handleUpdateSettings = async (patch: Partial<SpaceSettings>) => {
     if (!space) return;
-    // Deep merge: handle undefined values (reset) and nested objects
     const merged = { ...space.settings };
     for (const [key, value] of Object.entries(patch)) {
       if (value === undefined) {
@@ -124,21 +127,42 @@ export default function SpaceDetailPage({ params }: { params: Promise<{ id: stri
         startedAt: new Date().toISOString(),
         spaceId: id,
       });
+      setActiveThread(normalizeUrl(sourceUrl));
     },
-    [addRun, id]
+    [addRun, id, setActiveThread]
   );
+
+  const handleChat = useCallback(
+    (message: string) => {
+      sendMessage(message, id);
+    },
+    [sendMessage, id]
+  );
+
+  const handleRetry = useCallback(() => {
+    refetch();
+  }, [refetch]);
 
   const handleThreadClick = (threadId: string) => {
     setActiveThread(threadId);
     setChatThreadId(threadId);
-    router.push("/");
   };
 
   const spaceThreads = threads.filter((t) =>
     t.runs.some((r) => r.spaceId === id)
   );
 
-  if (loading) {
+  const threadMessages = (() => {
+    if (!activeThreadId) return [];
+    const thread = threads.find((t) => t.threadId === activeThreadId);
+    if (!thread) return [];
+    return [...thread.runs].reverse();
+  })();
+
+  const hasAiActivity = aiMessages.length > 0 || isThinking;
+  const hasChatContent = activeThreadId || hasAiActivity;
+
+  if (pageLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader2 className="h-6 w-6 animate-spin text-muted" />
@@ -148,6 +172,57 @@ export default function SpaceDetailPage({ params }: { params: Promise<{ id: stri
 
   if (!space) return null;
 
+  // Chat-active layout: full-height chat with settings panel
+  if (hasChatContent) {
+    return (
+      <div className="flex h-screen overflow-hidden">
+        {/* Chat area */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Space header bar */}
+          <div className="flex items-center gap-3 px-4 py-2.5 border-b border-border/50 bg-surface-0">
+            <button
+              onClick={() => { setActiveThread(null); }}
+              className="text-xs text-muted hover:text-foreground transition-colors cursor-pointer"
+            >
+              &larr; {space.icon} {space.name}
+            </button>
+          </div>
+
+          <ChatFeed
+            messages={threadMessages}
+            aiMessages={aiMessages}
+            isAiThinking={isThinking}
+            loading={loading}
+            onRetry={handleRetry}
+          />
+          <PromptInput
+            onSubmit={handleSubmit}
+            onChat={handleChat}
+            spaceId={id}
+            disabled={isThinking}
+          />
+        </div>
+
+        {/* Settings panel */}
+        <div className="w-48 flex-shrink-0 border-l border-border/50 p-4 overflow-y-auto">
+          <div className="bg-surface-1 border border-border rounded-xl p-4">
+            <SpacePanel
+              spaceId={id}
+              settings={space.settings}
+              globalSettings={globalSettings}
+              accounts={space.accounts}
+              creators={space.creators}
+              onUpdateSettings={handleUpdateSettings}
+              onUpdateAccounts={handleUpdateAccounts}
+              onUpdateCreators={handleUpdateCreators}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Dashboard layout: space overview with threads
   return (
     <div className="h-screen overflow-y-auto">
       <div className="max-w-5xl mx-auto px-6 pt-8 pb-16">
@@ -174,7 +249,7 @@ export default function SpaceDetailPage({ params }: { params: Promise<{ id: stri
               transition={{ duration: 0.3, delay: 0.1 }}
               className="mt-10"
             >
-              <PromptInput onSubmit={handleSubmit} spaceId={id} fullWidth />
+              <PromptInput onSubmit={handleSubmit} onChat={handleChat} spaceId={id} fullWidth disabled={isThinking} />
             </motion.div>
 
             {/* My threads tab */}

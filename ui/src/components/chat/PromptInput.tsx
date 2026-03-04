@@ -6,19 +6,36 @@ import { cn } from "@/lib/utils";
 import { SpaceSelector } from "@/components/spaces/SpaceSelector";
 import { useSpace } from "@/contexts/SpaceContext";
 
-/** Only match processable video URLs — not channels, playlists, or bare domains */
+/** Match video URLs from any platform yt-dlp supports */
 function isVideoUrl(input: string): boolean {
   const trimmed = input.trim();
-  // youtu.be/VIDEO_ID short links
-  if (/^(https?:\/\/)?youtu\.be\/[\w-]{11}/i.test(trimmed)) return true;
-  // youtube.com/watch?v=VIDEO_ID
-  if (/youtube\.com\/watch\?.*v=[\w-]{11}/i.test(trimmed)) return true;
-  // youtube.com/shorts/VIDEO_ID
-  if (/youtube\.com\/shorts\/[\w-]{11}/i.test(trimmed)) return true;
-  // youtube.com/embed/VIDEO_ID
-  if (/youtube\.com\/embed\/[\w-]{11}/i.test(trimmed)) return true;
-  // youtube.com/v/VIDEO_ID
-  if (/youtube\.com\/v\/[\w-]{11}/i.test(trimmed)) return true;
+  try {
+    const url = new URL(trimmed.startsWith("http") ? trimmed : `https://${trimmed}`);
+    const host = url.hostname.replace(/^www\./, "");
+    // YouTube
+    if ((host === "youtube.com" || host === "m.youtube.com") && (url.searchParams.has("v") || /^\/(shorts|embed|v)\//.test(url.pathname))) return true;
+    if (host === "youtu.be" && url.pathname.length > 1) return true;
+    // Twitch — VODs, clips, and channel videos
+    if ((host === "twitch.tv" || host === "clips.twitch.tv") && url.pathname.length > 1) return true;
+    // Kick — clips and videos
+    if (host === "kick.com" && url.pathname.length > 1) return true;
+    // Twitter/X — video tweets
+    if ((host === "twitter.com" || host === "x.com") && /\/status\/\d+/.test(url.pathname)) return true;
+    // Facebook — video posts
+    if ((host === "facebook.com" || host === "fb.watch") && url.pathname.length > 1) return true;
+    // TikTok
+    if ((host === "tiktok.com" || host.endsWith(".tiktok.com")) && url.pathname.length > 1) return true;
+    // Instagram — reels and posts
+    if (host === "instagram.com" && /^\/(reel|p)\//.test(url.pathname)) return true;
+    // Reddit — video posts
+    if ((host === "reddit.com" || host.endsWith(".reddit.com")) && /\/comments\//.test(url.pathname)) return true;
+    // Dailymotion
+    if ((host === "dailymotion.com" || host === "dai.ly") && url.pathname.length > 1) return true;
+    // Vimeo
+    if (host === "vimeo.com" && /^\/\d+/.test(url.pathname)) return true;
+  } catch {
+    return false;
+  }
   return false;
 }
 

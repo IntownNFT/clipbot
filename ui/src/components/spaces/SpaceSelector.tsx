@@ -79,38 +79,41 @@ export function SpaceSelector({ value, onChange, readOnly }: SpaceSelectorProps)
         createPortal(
           <div
             ref={dropdownRef}
-            className="fixed w-56 bg-surface-1 border border-border rounded-xl shadow-elevation-3 overflow-hidden z-[100]"
+            className="fixed w-56 bg-surface-1 border border-border rounded-xl shadow-elevation-3 overflow-hidden z-[100] flex flex-col"
             style={{
               top: pos.top - 8,
               left: pos.left - 224,
               transform: "translateY(-100%)",
+              maxHeight: "min(320px, 50vh)",
             }}
           >
-            {spaces.map((space) => (
-              <button
-                key={space.id}
-                type="button"
-                onClick={() => { onChange(space.id); setOpen(false); }}
-                className={cn(
-                  "w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-left hover:bg-surface-2 transition-colors cursor-pointer",
-                  value === space.id && "bg-accent/8 text-accent"
-                )}
-              >
-                {space.icon ? (
-                  <span className="text-base">{space.icon}</span>
-                ) : (
-                  <Layers className="h-4 w-4 text-muted" />
-                )}
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium truncate">{space.name}</div>
-                  {space.description && (
-                    <div className="text-xs text-muted truncate">{space.description}</div>
+            <div className="overflow-y-auto flex-1 overscroll-contain">
+              {spaces.map((space) => (
+                <button
+                  key={space.id}
+                  type="button"
+                  onClick={() => { onChange(space.id); setOpen(false); }}
+                  className={cn(
+                    "w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-left hover:bg-surface-2 transition-colors cursor-pointer",
+                    value === space.id && "bg-accent/8 text-accent"
                   )}
-                </div>
-              </button>
-            ))}
+                >
+                  {space.icon ? (
+                    <span className="text-base">{space.icon}</span>
+                  ) : (
+                    <Layers className="h-4 w-4 text-muted" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium truncate">{space.name}</div>
+                    {space.description && (
+                      <div className="text-xs text-muted truncate">{space.description}</div>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
 
-            <div className="border-t border-border/50">
+            <div className="border-t border-border/50 flex-shrink-0">
               <button
                 type="button"
                 onClick={() => { setOpen(false); router.push("/spaces/new"); }}
