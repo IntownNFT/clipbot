@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { SidebarProvider } from "@/contexts/SidebarContext";
 import { SpaceProvider } from "@/contexts/SpaceContext";
 import { ThreadProvider } from "@/contexts/ThreadContext";
+import { ToastProvider } from "@/contexts/ToastContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
@@ -35,16 +36,18 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-surface-0 text-foreground`}
       >
         <ThemeProvider>
-          <TooltipProvider>
-            <SidebarProvider>
-              <SpaceProvider>
-                <ThreadProvider>
-                  <Sidebar />
-                  <MainContent>{children}</MainContent>
-                </ThreadProvider>
-              </SpaceProvider>
-            </SidebarProvider>
-          </TooltipProvider>
+          <ToastProvider>
+            <TooltipProvider>
+              <SidebarProvider>
+                <SpaceProvider>
+                  <ThreadProvider>
+                    <Sidebar />
+                    <MainContent>{children}</MainContent>
+                  </ThreadProvider>
+                </SpaceProvider>
+              </SidebarProvider>
+            </TooltipProvider>
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>

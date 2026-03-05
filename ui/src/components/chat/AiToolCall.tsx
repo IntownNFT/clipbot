@@ -1,5 +1,6 @@
 "use client";
 
+import type { ToolUIPart, DynamicToolUIPart } from "ai";
 import {
   Tool,
   ToolHeader,
@@ -7,7 +8,6 @@ import {
   ToolInput,
   ToolOutput,
 } from "@/components/ai-elements/tool";
-import type { AiToolCallEvent } from "@/hooks/useAiChat";
 
 const TOOL_TITLES: Record<string, string> = {
   list_spaces: "List Spaces",
@@ -34,44 +34,39 @@ const TOOL_TITLES: Record<string, string> = {
   cancel_scheduled: "Cancel Scheduled Post",
 };
 
-/** Map our custom states to AI SDK ToolUIPart states */
-function mapState(status: AiToolCallEvent["status"]) {
-  switch (status) {
-    case "running":
-      return "input-available" as const;
-    case "done":
-      return "output-available" as const;
-    case "error":
-      return "output-error" as const;
-  }
+function getToolName(part: ToolUIPart | DynamicToolUIPart): string {
+  if (part.type === "dynamic-tool") return part.toolName;
+  // ToolUIPart type is "tool-<name>"
+  return part.type.startsWith("tool-") ? part.type.slice(5) : part.type;
 }
 
 interface AiToolCallProps {
-  toolCall: AiToolCallEvent;
+  part: ToolUIPart | DynamicToolUIPart;
 }
 
-export function AiToolCall({ toolCall }: AiToolCallProps) {
-  const title = TOOL_TITLES[toolCall.name] ?? toolCall.name;
-  const state = mapState(toolCall.status);
-  const hasOutput = toolCall.status === "done" || toolCall.status === "error";
+export function AiToolCall({ part }: AiToolCallProps) {
+  const name = getToolName(part);
+  const title = TOOL_TITLES[name] ?? name;
+  const hasOutput = part.state === "output-available" || part.state === "output-error";
+
+  const headerProps =
+    part.type === "dynamic-tool"
+      ? { type: "dynamic-tool" as const, state: part.state, toolName: (part as DynamicToolUIPart).toolName, title }
+      : { type: part.type as `tool-${string}`, state: part.state, title };
 
   return (
     <Tool defaultOpen={hasOutput}>
-      <ToolHeader
-        type={`tool-${toolCall.name}` as `tool-${string}`}
-        state={state}
-        title={title}
-      />
+      <ToolHeader {...headerProps} />
       <ToolContent>
-        {toolCall.input && Object.keys(toolCall.input).length > 0 && (
-          <ToolInput input={toolCall.input} />
-        )}
-        {hasOutput && (
+        {part.input != null && Object.keys(part.input as object).length > 0 ? (
+          <ToolInput input={part.input as Record<string, unknown>} />
+        ) : null}
+        {hasOutput ? (
           <ToolOutput
-            output={toolCall.result ?? undefined}
-            errorText={toolCall.error ?? undefined}
+            output={part.state === "output-available" ? (part.output as Record<string, unknown>) : undefined}
+            errorText={part.state === "output-error" ? (part as ToolUIPart).errorText : undefined}
           />
-        )}
+        ) : null}
       </ToolContent>
     </Tool>
   );

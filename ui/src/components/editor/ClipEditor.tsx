@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, lazy, Suspense } from "react";
+import { useState, useCallback, useRef, lazy, Suspense, Component, type ReactNode, type ErrorInfo } from "react";
 import { type PlayerRef } from "@remotion/player";
 import { type CaptionStyleState } from "./StyleControls";
 import { PropertiesPanel } from "./PropertiesPanel";
@@ -24,6 +24,33 @@ const RemotionPreview = lazy(() =>
     default: mod.RemotionPreview,
   }))
 );
+
+class EditorErrorBoundary extends Component<
+  { children: ReactNode },
+  { error: Error | null }
+> {
+  state: { error: Error | null } = { error: null };
+
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error("ClipEditor error:", error, info);
+  }
+
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="flex flex-col items-center gap-2 text-sm text-red-400 p-4 text-center">
+          <p className="font-medium">Editor failed to load</p>
+          <p className="text-xs text-muted">{this.state.error.message}</p>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -488,23 +515,25 @@ export function ClipEditor({
 
         {/* Center — player */}
         <div className="flex-1 flex items-center justify-center bg-black/40 p-4 min-w-0">
-          <Suspense
-            fallback={
-              <div className="flex items-center gap-2 text-sm text-muted">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Loading editor...
-              </div>
-            }
-          >
-            <RemotionPreview
-              tracks={tracks}
-              durationInFrames={durationInFrames}
-              fps={fps}
-              onFrameChange={setCurrentFrame}
-              onPlayingChange={setIsPlaying}
-              playerRef={playerRef}
-            />
-          </Suspense>
+          <EditorErrorBoundary>
+            <Suspense
+              fallback={
+                <div className="flex items-center gap-2 text-sm text-muted">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Loading editor...
+                </div>
+              }
+            >
+              <RemotionPreview
+                tracks={tracks}
+                durationInFrames={durationInFrames}
+                fps={fps}
+                onFrameChange={setCurrentFrame}
+                onPlayingChange={setIsPlaying}
+                playerRef={playerRef}
+              />
+            </Suspense>
+          </EditorErrorBoundary>
         </div>
 
         {/* Right — properties panel */}

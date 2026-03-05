@@ -28,7 +28,8 @@ import {
   useRef,
   useState,
 } from "react";
-import { createHighlighter } from "shiki";
+// shiki is loaded dynamically to avoid pulling ~2MB into the initial client bundle
+type CreateHighlighter = typeof import("shiki")["createHighlighter"];
 
 // Shiki uses bitflags for font styles: 1=italic, 2=bold, 4=underline
 // biome-ignore lint/suspicious/noBitwiseOperators: shiki bitflag check
@@ -138,6 +139,8 @@ const getTokensCacheKey = (code: string, language: BundledLanguage) => {
   return `${language}:${code.length}:${start}:${end}`;
 };
 
+let _createHighlighter: CreateHighlighter | null = null;
+
 const getHighlighter = (
   language: BundledLanguage
 ): Promise<HighlighterGeneric<BundledLanguage, BundledTheme>> => {
@@ -146,10 +149,16 @@ const getHighlighter = (
     return cached;
   }
 
-  const highlighterPromise = createHighlighter({
-    langs: [language],
-    themes: ["github-light", "github-dark"],
-  });
+  const highlighterPromise = (async () => {
+    if (!_createHighlighter) {
+      const shiki = await import("shiki");
+      _createHighlighter = shiki.createHighlighter;
+    }
+    return _createHighlighter({
+      langs: [language],
+      themes: ["github-light", "github-dark"],
+    });
+  })();
 
   highlighterCache.set(language, highlighterPromise);
   return highlighterPromise;

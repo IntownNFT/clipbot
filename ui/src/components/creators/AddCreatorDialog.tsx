@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Dialog } from "@/components/ui/Dialog";
-import { Input } from "@/components/ui/Input";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 

@@ -23,11 +23,17 @@ export interface RunRecord {
   outputDir: string;
 }
 
-/** Mark runs stuck in active states for >10 minutes as failed */
+// Throttle timestamps for filesystem scans
+let lastSyncTime = 0;
+let lastStaleCheckTime = 0;
+
+/** Mark runs stuck in active states for >10 minutes as failed (throttled to every 60s) */
 export async function markStaleRunsFailed(): Promise<void> {
+  const now = Date.now();
+  if (now - lastStaleCheckTime < 60_000) return;
+  lastStaleCheckTime = now;
   const runs = await listRuns();
   const staleThreshold = 10 * 60 * 1000; // 10 minutes
-  const now = Date.now();
   let changed = false;
 
   for (const run of runs) {
@@ -173,8 +179,11 @@ export async function getManifest(
   }
 }
 
-/** Scan clipbot-output directories for any manifests not tracked in runs.json */
+/** Scan clipbot-output directories for any manifests not tracked in runs.json (throttled to every 30s) */
 export async function syncRunsFromOutput(): Promise<void> {
+  const now = Date.now();
+  if (now - lastSyncTime < 30_000) return;
+  lastSyncTime = now;
   const outputBase = getOutputDir();
   try {
     const dirs = await readdir(outputBase, { withFileTypes: true });

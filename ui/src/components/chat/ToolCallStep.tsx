@@ -111,12 +111,6 @@ function getDetail(
     if (step === "downloading" && manifest?.download) {
       return <span>{manifest.download.filename}</span>;
     }
-    if (step === "analyzing" && manifest?.moments && manifest.moments.length > 0) {
-      const top = manifest.moments.reduce((a, b) =>
-        b.viralityScore > a.viralityScore ? b : a
-      );
-      return <span>Top: &ldquo;{top.title}&rdquo; (score {top.viralityScore})</span>;
-    }
     return null;
   }
 

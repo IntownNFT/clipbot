@@ -1,14 +1,29 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { ToolCallStep } from "./ToolCallStep";
 import { MomentsResult } from "./MomentsResult";
 import { ClipsResult } from "./ClipsResult";
 import { ErrorResult } from "./ErrorResult";
 import { ActionBar } from "./ActionBar";
-import { ClipEditorSlideOver } from "@/components/feed/ClipEditorSlideOver";
-import { PublishDialog } from "@/components/clips/PublishDialog";
 import type { PipelineManifest } from "@/lib/run-store";
+
+const ClipEditorSlideOver = dynamic(
+  () => import("@/components/feed/ClipEditorSlideOver").then((m) => m.ClipEditorSlideOver),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+        <div className="text-sm text-white">Loading editor...</div>
+      </div>
+    ),
+  }
+);
+const PublishDialog = dynamic(
+  () => import("@/components/clips/PublishDialog").then((m) => m.PublishDialog),
+  { ssr: false }
+);
 import type { DownloadProgress } from "@/hooks/useRunStream";
 import type { AggregatedClip } from "@/app/api/clips/route";
 import { toMediaUrl } from "@/lib/utils";
@@ -146,8 +161,8 @@ export function BotResponse({
       {/* Error */}
       {isFailed && <ErrorResult error={manifest?.error} />}
 
-      {/* Actions */}
-      {(isFailed || status === "complete" || !["complete", "failed"].includes(status)) && (
+      {/* Actions — only show after pipeline finishes */}
+      {(status === "complete" || isFailed) && (
         <ActionBar
           runId={runId}
           sourceUrl={sourceUrl}

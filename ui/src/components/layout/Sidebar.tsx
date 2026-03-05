@@ -7,16 +7,16 @@ import {
   MessageSquare,
   Search,
   Layers,
-  Settings,
   Clapperboard,
   CalendarDays,
+  BarChart3,
   Users,
   PanelLeftClose,
   PanelLeftOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNotificationCount } from "@/hooks/useNotificationCount";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { ProfileMenu } from "@/components/layout/ProfileMenu";
 import { useSidebar } from "@/contexts/SidebarContext";
 import { useThread } from "@/contexts/ThreadContext";
 
@@ -25,8 +25,8 @@ const links = [
   { href: "/search", label: "Search", icon: Search },
   { href: "/runs", label: "Spaces", icon: Layers },
   { href: "/calendar", label: "Calendar", icon: CalendarDays },
+  { href: "/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/creators", label: "Creators", icon: Users },
-  { href: "/settings", label: "Settings", icon: Settings },
 ];
 
 export function Sidebar() {
@@ -68,18 +68,18 @@ export function Sidebar() {
       <Link
         href="/"
         onClick={() => newChat()}
-        className="flex items-center gap-2.5 px-5 py-5 border-b border-border rounded-t-xl min-h-[65px]"
+        className="flex items-center gap-2.5 px-4 py-4 border-b border-border/50 min-h-[56px]"
       >
-        <Clapperboard className="h-7 w-7 text-accent flex-shrink-0" />
+        <Clapperboard className="h-5 w-5 text-accent flex-shrink-0" />
         {visualExpanded && (
-          <span className="text-lg font-bold tracking-tight whitespace-nowrap">
+          <span className="text-[15px] font-semibold tracking-tight whitespace-nowrap">
             Clip<span className="text-accent">Bot</span>
           </span>
         )}
       </Link>
 
       {/* Navigation */}
-      <nav className="flex-1 flex flex-col gap-1 p-3 mt-2">
+      <nav className="flex-1 flex flex-col gap-0.5 p-2.5 mt-1">
         {links.map(({ href, label, icon: Icon }) => {
           const active =
             href === "/"
@@ -92,26 +92,29 @@ export function Sidebar() {
               title={!visualExpanded ? label : undefined}
               onClick={href === "/" ? () => newChat() : undefined}
               className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 relative",
+                "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors duration-150 relative group",
                 !visualExpanded && "justify-center px-0",
                 active
-                  ? "bg-accent/12 text-accent border border-accent/15"
-                  : "text-muted hover:text-foreground hover:bg-surface-2 border border-transparent"
+                  ? "bg-accent/10 text-accent"
+                  : "text-muted hover:text-foreground hover:bg-surface-2"
               )}
             >
-              <Icon className="h-4.5 w-4.5 flex-shrink-0" />
+              <Icon className={cn(
+                "h-4 w-4 flex-shrink-0 transition-colors duration-150",
+                active ? "text-accent" : "text-muted group-hover:text-foreground"
+              )} />
               {visualExpanded && (
                 <>
                   <span className="whitespace-nowrap">{label}</span>
                   {label === "Creators" && notificationCount > 0 && (
-                    <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+                    <span className="ml-auto flex h-[18px] min-w-[18px] px-1 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white leading-none">
                       {notificationCount > 9 ? "9+" : notificationCount}
                     </span>
                   )}
                 </>
               )}
               {!visualExpanded && label === "Creators" && notificationCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[8px] font-bold text-white">
+                <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-500 text-[8px] font-bold text-white">
                   {notificationCount > 9 ? "9+" : notificationCount}
                 </span>
               )}
@@ -120,32 +123,25 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Theme + Collapse + Footer */}
-      <div className="border-t border-border p-3 space-y-1">
-        {/* Collapse toggle */}
+      {/* Profile + Collapse */}
+      <div className="border-t border-border/50 p-2.5 space-y-0.5">
+        <ProfileMenu compact={!visualExpanded} />
+
         <button
           onClick={toggle}
           title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           className={cn(
-            "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted hover:text-foreground hover:bg-surface-2 transition-all duration-200 w-full cursor-pointer",
+            "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium text-muted hover:text-foreground hover:bg-surface-2 transition-colors duration-150 w-full cursor-pointer group",
             !visualExpanded && "justify-center px-0"
           )}
         >
           {collapsed ? (
-            <PanelLeftOpen className="h-4 w-4 flex-shrink-0" />
+            <PanelLeftOpen className="h-4 w-4 flex-shrink-0 text-muted group-hover:text-foreground transition-colors duration-150" />
           ) : (
-            <PanelLeftClose className="h-4 w-4 flex-shrink-0" />
+            <PanelLeftClose className="h-4 w-4 flex-shrink-0 text-muted group-hover:text-foreground transition-colors duration-150" />
           )}
           {visualExpanded && (collapsed ? "Expand" : "Collapse")}
         </button>
-
-        <ThemeToggle compact={!visualExpanded} />
-
-        {visualExpanded && (
-          <div className="px-3 py-1 text-xs text-muted/60 whitespace-nowrap">
-            ClipBot v0.2.0
-          </div>
-        )}
       </div>
     </aside>
   );

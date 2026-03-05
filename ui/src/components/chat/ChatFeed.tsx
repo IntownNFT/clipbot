@@ -1,5 +1,7 @@
 "use client";
 
+import type { UIMessage } from "ai";
+import { isToolUIPart } from "ai";
 import {
   Conversation,
   ConversationContent,
@@ -13,11 +15,10 @@ import { AiToolCall } from "./AiToolCall";
 import { UserMessage } from "./UserMessage";
 import { Clapperboard } from "lucide-react";
 import type { ChatMessage } from "@/hooks/useChatMessages";
-import type { AiChatMessage } from "@/hooks/useAiChat";
 
 interface ChatFeedProps {
   messages: ChatMessage[];
-  aiMessages?: AiChatMessage[];
+  aiMessages?: UIMessage[];
   isAiThinking?: boolean;
   loading: boolean;
   onRetry: () => void;
@@ -58,23 +59,43 @@ export function ChatFeed({ messages, aiMessages = [], isAiThinking, loading, onR
           <ChatThread key={msg.runId} message={msg} onRetry={onRetry} />
         ))}
 
-        {/* AI chat messages */}
+        {/* AI chat messages — render from UIMessage parts */}
         {aiMessages.map((msg) => {
-          if (msg.type === "user") {
+          if (msg.role === "user") {
+            const text = msg.parts
+              ?.filter((p): p is { type: "text"; text: string } => p.type === "text")
+              .map((p) => p.text)
+              .join("\n") || "";
             return (
               <UserMessage
                 key={msg.id}
-                text={msg.content}
-                startedAt={msg.timestamp}
+                text={typeof text === "string" ? text : ""}
+                startedAt={new Date().toISOString()}
               />
             );
           }
-          if (msg.type === "tool-call" && msg.toolCall) {
-            return <AiToolCall key={msg.id} toolCall={msg.toolCall} />;
+
+          if (msg.role === "assistant") {
+            return (
+              <div key={msg.id} className="flex flex-col gap-3">
+                {msg.parts?.map((part, i) => {
+                  if (part.type === "text" && part.text?.trim()) {
+                    return <AiMessage key={`${msg.id}-text-${i}`} content={part.text} />;
+                  }
+                  if (isToolUIPart(part)) {
+                    return (
+                      <AiToolCall
+                        key={`${msg.id}-tool-${i}`}
+                        part={part}
+                      />
+                    );
+                  }
+                  return null;
+                })}
+              </div>
+            );
           }
-          if (msg.type === "assistant" && msg.content) {
-            return <AiMessage key={msg.id} content={msg.content} />;
-          }
+
           return null;
         })}
 

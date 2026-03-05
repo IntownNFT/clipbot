@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Dialog } from "@/components/ui/Dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/Dialog";
 import { Button } from "@/components/ui/button";
 import { Loader2, CheckCircle2, XCircle, CalendarDays } from "lucide-react";
 
@@ -94,8 +94,12 @@ export function PublishDialog({
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} title="Publish Clips">
-      <div className="space-y-4">
+    <Dialog open={open} onClose={handleClose}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Publish Clips</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
         {/* Tab switcher */}
         <div className="flex gap-1 rounded-lg bg-surface-2 p-1">
           <button
@@ -198,6 +202,7 @@ export function PublishDialog({
           )}
         </div>
       </div>
+      </DialogContent>
     </Dialog>
   );
 }

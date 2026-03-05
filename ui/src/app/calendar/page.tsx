@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -11,21 +11,83 @@ import {
 import { WeekView } from "@/components/calendar/WeekView";
 import { PostChip, type ScheduledPost } from "@/components/calendar/PostChip";
 import { PageTransition } from "@/components/ui/PageTransition";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { CalendarDays } from "lucide-react";
+
+function getWeekStart(date: Date): Date {
+  const d = new Date(date);
+  d.setDate(d.getDate() - d.getDay());
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function CalendarSkeleton() {
+  return (
+    <div className="space-y-4">
+      {/* Stats bar skeleton */}
+      <Skeleton className="h-10 w-48 rounded-lg" />
+      {/* Week header skeleton */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-8 w-8 rounded-md" />
+          <Skeleton className="h-8 w-8 rounded-md" />
+          <Skeleton className="h-6 w-48 rounded-md" />
+        </div>
+        <Skeleton className="h-8 w-16 rounded-md" />
+      </div>
+      {/* Grid skeleton */}
+      <div className="rounded-xl border border-border bg-surface-1 p-4 space-y-2">
+        <div className="grid grid-cols-8 gap-2">
+          <Skeleton className="h-10" />
+          {Array.from({ length: 7 }).map((_, i) => (
+            <Skeleton key={i} className="h-10" />
+          ))}
+        </div>
+        {Array.from({ length: 6 }).map((_, row) => (
+          <div key={row} className="grid grid-cols-8 gap-2">
+            <Skeleton className="h-12" />
+            {Array.from({ length: 7 }).map((_, col) => (
+              <Skeleton key={col} className="h-12" />
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function CalendarPage() {
   const [posts, setPosts] = useState<ScheduledPost[]>([]);
   const [activePost, setActivePost] = useState<ScheduledPost | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const fetchPosts = useCallback(() => {
+    setLoading(true);
     fetch("/api/calendar")
       .then((r) => r.json())
-      .then((data) => setPosts(data))
-      .catch(() => {});
+      .then((data) => {
+        setPosts(data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
   }, []);
 
   useEffect(() => {
     fetchPosts();
   }, [fetchPosts]);
+
+  const weekPostCount = useMemo(() => {
+    const weekStart = getWeekStart(new Date());
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 7);
+
+    return posts.filter((p) => {
+      const d = new Date(p.scheduledFor);
+      return d >= weekStart && d < weekEnd;
+    }).length;
+  }, [posts]);
 
   const reschedule = async (id: string, newScheduledFor: string) => {
     await fetch(`/api/calendar/${id}`, {
@@ -65,16 +127,48 @@ export default function CalendarPage() {
     <PageTransition>
       <div className="p-10 space-y-8">
         <h1 className="text-xl font-semibold">Publishing Calendar</h1>
-        <DndContext
-          collisionDetection={closestCenter}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-        >
-          <WeekView posts={posts} />
-          <DragOverlay dropAnimation={null}>
-            {activePost && <PostChip post={activePost} compact overlay />}
-          </DragOverlay>
-        </DndContext>
+
+        {loading ? (
+          <CalendarSkeleton />
+        ) : (
+          <>
+            {/* Summary stats bar */}
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 rounded-lg bg-surface-1 border border-border px-4 py-2">
+                <CalendarDays className="h-4 w-4 text-accent" />
+                <span className="text-sm font-medium">
+                  {weekPostCount} {weekPostCount === 1 ? "post" : "posts"} this week
+                </span>
+              </div>
+            </div>
+
+            {/* Empty state */}
+            {posts.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-16 space-y-3">
+                <div className="rounded-full bg-surface-2 p-4">
+                  <CalendarDays className="h-8 w-8 text-muted" />
+                </div>
+                <h2 className="text-base font-semibold text-foreground">
+                  Nothing scheduled
+                </h2>
+                <p className="text-sm text-muted max-w-xs text-center">
+                  Schedule clips from the chat to see them here
+                </p>
+              </div>
+            )}
+
+            <DndContext
+              collisionDetection={closestCenter}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+            >
+              <WeekView posts={posts} />
+              <DragOverlay dropAnimation={null}>
+                {activePost && <PostChip post={activePost} compact overlay />}
+              </DragOverlay>
+            </DndContext>
+          </>
+        )}
       </div>
     </PageTransition>
   );
