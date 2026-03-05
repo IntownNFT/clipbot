@@ -9,16 +9,37 @@ import {
   syncRunsFromOutput,
   markStaleRunsFailed,
   findExistingRun,
+  getManifest,
 } from "@/lib/run-store";
 import { getEffectiveConfig } from "@/lib/settings-store";
 import { getSpaceEffectiveSettings } from "@/lib/space-store";
 import { spawnPipeline } from "@/lib/pipeline-worker";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   await syncRunsFromOutput();
   await markStaleRunsFailed();
   const runs = await listRuns();
-  return NextResponse.json(runs);
+
+  const includeManifests = new URL(req.url).searchParams.get("include") === "manifests";
+  if (!includeManifests) {
+    return NextResponse.json(runs);
+  }
+
+  // Batch: attach manifests for completed/failed runs to avoid N+1 fetches
+  const runsWithManifests = await Promise.all(
+    runs.slice(0, 30).map(async (run) => {
+      if (["complete", "failed"].includes(run.status)) {
+        const manifest = await getManifest(run.outputDir);
+        return { ...run, manifest };
+      }
+      return { ...run, manifest: null };
+    })
+  );
+
+  // Append remaining runs (beyond first 30) without manifests
+  const rest = runs.slice(30).map((run) => ({ ...run, manifest: null }));
+
+  return NextResponse.json([...runsWithManifests, ...rest]);
 }
 
 export async function POST(req: NextRequest) {

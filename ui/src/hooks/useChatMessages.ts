@@ -49,12 +49,29 @@ export function useChatMessages() {
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const fetchedManifestsRef = useRef<Set<string>>(new Set());
 
-  const fetchRuns = useCallback(async () => {
+  const fetchRuns = useCallback(async (includeManifests = false) => {
     try {
-      const res = await fetch("/api/runs");
-      const data: RunRecord[] = await res.json();
-      setRuns(data);
-      return data;
+      const url = includeManifests ? "/api/runs?include=manifests" : "/api/runs";
+      const res = await fetch(url);
+      const data: (RunRecord & { manifest?: PipelineManifest | null })[] = await res.json();
+
+      // Extract inline manifests from batch response
+      if (includeManifests) {
+        const newManifests: Record<string, PipelineManifest> = {};
+        for (const run of data) {
+          if (run.manifest) {
+            newManifests[run.runId] = run.manifest;
+            fetchedManifestsRef.current.add(run.runId);
+          }
+        }
+        if (Object.keys(newManifests).length > 0) {
+          setManifests((prev) => ({ ...prev, ...newManifests }));
+        }
+      }
+
+      const runs = data.map(({ manifest: _, ...run }) => run) as RunRecord[];
+      setRuns(runs);
+      return runs;
     } catch {
       return [];
     }
@@ -139,16 +156,22 @@ export function useChatMessages() {
     };
   }, []);
 
-  // Initial load
+  // Initial load — use batch endpoint to get all manifests in one request
   useEffect(() => {
-    fetchRuns().then((data) => {
+    fetchRuns(true).then((data) => {
       setLoading(false);
+      // Fetch any missing manifests in parallel (batch already populated most)
+      const missingManifestRuns = data.slice(0, 30).filter(
+        (r) =>
+          ["complete", "failed"].includes(r.status) &&
+          !fetchedManifestsRef.current.has(r.runId)
+      );
+      if (missingManifestRuns.length > 0) {
+        Promise.all(missingManifestRuns.map((r) => fetchManifest(r.runId)));
+      }
+      // Stream live updates for active runs
       for (const run of data.slice(0, 30)) {
-        if (["complete", "failed"].includes(run.status)) {
-          // Fetch stored manifest for finished runs
-          fetchManifest(run.runId);
-        } else {
-          // Stream live updates for active runs
+        if (!["complete", "failed"].includes(run.status)) {
           connectStream(run.runId);
         }
       }

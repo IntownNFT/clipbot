@@ -1,30 +1,31 @@
-"use client";
+"use client"
 
-import { cn } from "@/lib/utils";
-import { motion } from "motion/react";
+import * as React from "react"
+import * as ProgressPrimitive from "@radix-ui/react-progress"
 
-interface ProgressProps {
-  value: number; // 0-100
-  className?: string;
-  animated?: boolean;
-}
+import { cn } from "@/lib/utils"
 
-export function Progress({ value, className, animated = true }: ProgressProps) {
-  const clampedValue = Math.min(100, Math.max(0, value));
-
+function Progress({
+  className,
+  value,
+  ...props
+}: React.ComponentProps<typeof ProgressPrimitive.Root>) {
   return (
-    <div
+    <ProgressPrimitive.Root
+      data-slot="progress"
       className={cn(
-        "h-2 w-full rounded-full bg-surface-2 overflow-hidden",
+        "relative h-2 w-full overflow-hidden rounded-full bg-primary/20",
         className
       )}
+      {...props}
     >
-      <motion.div
-        className="h-full rounded-full bg-accent"
-        initial={animated ? { width: 0 } : undefined}
-        animate={{ width: `${clampedValue}%` }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+      <ProgressPrimitive.Indicator
+        data-slot="progress-indicator"
+        className="h-full w-full flex-1 bg-primary transition-all"
+        style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
       />
-    </div>
-  );
+    </ProgressPrimitive.Root>
+  )
 }
+
+export { Progress }

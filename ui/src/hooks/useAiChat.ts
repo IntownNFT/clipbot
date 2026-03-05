@@ -1,22 +1,9 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
-
-export interface AiToolCallEvent {
-  name: string;
-  input: Record<string, unknown>;
-  result?: unknown;
-  error?: string;
-  status: "running" | "done" | "error";
-}
-
-export interface AiChatMessage {
-  id: string;
-  type: "user" | "assistant" | "tool-call";
-  content?: string;
-  toolCall?: AiToolCallEvent;
-  timestamp: string;
-}
+import { useChat } from "@ai-sdk/react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { DefaultChatTransport, type UIMessage } from "ai";
+import { useSpace } from "@/contexts/SpaceContext";
 
 interface StoredMessage {
   id: string;
@@ -36,45 +23,48 @@ interface StoredMessage {
   timestamp: string;
 }
 
-/** Convert persisted messages into client-side AiChatMessage format */
-function hydrateMessages(stored: StoredMessage[]): AiChatMessage[] {
-  const messages: AiChatMessage[] = [];
+/** Convert persisted chat-store messages into UIMessage format for useChat */
+function hydrateMessages(stored: StoredMessage[]): UIMessage[] {
+  const messages: UIMessage[] = [];
 
   for (const msg of stored) {
     if (msg.role === "user") {
       messages.push({
         id: msg.id,
-        type: "user",
-        content: msg.content,
-        timestamp: msg.timestamp,
+        role: "user",
+        parts: [{ type: "text", text: msg.content }],
       });
     } else if (msg.role === "assistant") {
-      // If this message has tool calls, render them first
-      if (msg.toolCalls && msg.toolResults) {
+      const parts: UIMessage["parts"] = [];
+
+      // Add tool call parts if present
+      if (msg.toolCalls) {
         for (const tc of msg.toolCalls) {
-          const result = msg.toolResults.find((r) => r.toolCallId === tc.id);
-          messages.push({
-            id: `${msg.id}-tool-${tc.id}`,
-            type: "tool-call",
-            toolCall: {
-              name: tc.name,
-              input: tc.input,
-              result: result?.result,
-              status: "done",
-            },
-            timestamp: msg.timestamp,
-          });
+          const result = msg.toolResults?.find((r) => r.toolCallId === tc.id);
+          parts.push({
+            type: `tool-${tc.name}` as `tool-${string}`,
+            toolCallId: tc.id,
+            toolName: tc.name,
+            state: result ? "output-available" : "input-available",
+            input: tc.input,
+            output: result?.result,
+          } as UIMessage["parts"][number]);
         }
       }
 
-      // Render text content (skip pure tool-call placeholder messages)
-      const textContent = msg.content.replace(/\[Tool call: \w+\]\n?/g, "").trim();
+      // Add text content if present
+      const textContent = msg.content
+        .replace(/\[Tool call: \w+\]\n?/g, "")
+        .trim();
       if (textContent) {
+        parts.push({ type: "text", text: textContent });
+      }
+
+      if (parts.length > 0) {
         messages.push({
           id: msg.id,
-          type: "assistant",
-          content: textContent,
-          timestamp: msg.timestamp,
+          role: "assistant",
+          parts,
         });
       }
     }
@@ -84,28 +74,57 @@ function hydrateMessages(stored: StoredMessage[]): AiChatMessage[] {
 }
 
 export function useAiChat(threadId: string | null) {
-  const [aiMessages, setAiMessages] = useState<AiChatMessage[]>([]);
-  const [isThinking, setIsThinking] = useState(false);
-  const [activeToolCall, setActiveToolCall] = useState<AiToolCallEvent | null>(null);
+  const { activeSpaceId } = useSpace();
   const [historyLoaded, setHistoryLoaded] = useState(false);
-  const abortRef = useRef<AbortController | null>(null);
+  const prevThreadId = useRef<string | null>(null);
 
-  // Clear messages and load persisted history when threadId changes
+  const transport = useMemo(
+    () =>
+      new DefaultChatTransport({
+        api: "/api/chat",
+        body: { threadId, spaceId: activeSpaceId },
+      }),
+    [threadId, activeSpaceId]
+  );
+
+  const {
+    messages: aiMessages,
+    sendMessage: chatSendMessage,
+    status,
+    error,
+    setMessages,
+  } = useChat({
+    id: threadId ?? "default",
+    transport,
+  });
+
+  const isThinking = status === "submitted" || status === "streaming";
+
+  // Load persisted history when threadId changes
   useEffect(() => {
-    setAiMessages([]);
+    if (threadId === prevThreadId.current) return;
+    prevThreadId.current = threadId;
     setHistoryLoaded(false);
 
-    if (!threadId) return;
+    if (!threadId) {
+      setMessages([]);
+      setHistoryLoaded(true);
+      return;
+    }
 
     let cancelled = false;
     fetch(`/api/chat?threadId=${encodeURIComponent(threadId)}`)
       .then((res) => res.json())
       .then((stored: StoredMessage[]) => {
-        if (cancelled || !stored.length) return;
-        setAiMessages(hydrateMessages(stored));
+        if (cancelled) return;
+        if (stored.length > 0) {
+          setMessages(hydrateMessages(stored));
+        } else {
+          setMessages([]);
+        }
       })
       .catch(() => {
-        // Ignore fetch errors on load
+        if (!cancelled) setMessages([]);
       })
       .finally(() => {
         if (!cancelled) setHistoryLoaded(true);
@@ -114,177 +133,28 @@ export function useAiChat(threadId: string | null) {
     return () => {
       cancelled = true;
     };
-  }, [threadId]);
+  }, [threadId, setMessages]);
 
   const sendMessage = useCallback(
-    async (message: string, spaceId?: string | null) => {
+    (message: string, _spaceId?: string | null) => {
       if (!threadId) return;
-
-      // Add user message to local state
-      const userMsg: AiChatMessage = {
-        id: crypto.randomUUID(),
-        type: "user",
-        content: message,
-        timestamp: new Date().toISOString(),
-      };
-      setAiMessages((prev) => [...prev, userMsg]);
-      setIsThinking(true);
-      setActiveToolCall(null);
-
-      // Abort any existing connection
-      abortRef.current?.abort();
-      const controller = new AbortController();
-      abortRef.current = controller;
-
-      try {
-        const res = await fetch("/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ threadId, message, spaceId }),
-          signal: controller.signal,
-        });
-
-        if (!res.ok || !res.body) {
-          const err = await res.text();
-          setAiMessages((prev) => [
-            ...prev,
-            {
-              id: crypto.randomUUID(),
-              type: "assistant",
-              content: `Error: ${err}`,
-              timestamp: new Date().toISOString(),
-            },
-          ]);
-          setIsThinking(false);
-          return;
-        }
-
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = "";
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          buffer = lines.pop() ?? "";
-
-          let eventType = "";
-          for (const line of lines) {
-            if (line.startsWith("event: ")) {
-              eventType = line.slice(7).trim();
-            } else if (line.startsWith("data: ") && eventType) {
-              try {
-                const data = JSON.parse(line.slice(6));
-                handleSSEEvent(eventType, data);
-              } catch {
-                // Skip malformed JSON
-              }
-              eventType = "";
-            }
-          }
-        }
-      } catch (err) {
-        if ((err as Error).name !== "AbortError") {
-          setAiMessages((prev) => [
-            ...prev,
-            {
-              id: crypto.randomUUID(),
-              type: "assistant",
-              content: `Connection error: ${(err as Error).message}`,
-              timestamp: new Date().toISOString(),
-            },
-          ]);
-        }
-      } finally {
-        setIsThinking(false);
-        setActiveToolCall(null);
-      }
+      chatSendMessage({ text: message });
     },
-    [threadId]
+    [threadId, chatSendMessage]
   );
 
-  function handleSSEEvent(event: string, data: Record<string, unknown>) {
-    switch (event) {
-      case "ai-thinking":
-        setIsThinking(true);
-        break;
-
-      case "ai-tool-call": {
-        const toolCall = data as unknown as AiToolCallEvent;
-        setActiveToolCall(toolCall);
-        if (toolCall.status === "done" || toolCall.status === "error") {
-          setAiMessages((prev) => [
-            ...prev,
-            {
-              id: crypto.randomUUID(),
-              type: "tool-call",
-              toolCall,
-              timestamp: new Date().toISOString(),
-            },
-          ]);
-        }
-        break;
-      }
-
-      case "ai-message": {
-        const content = data.content as string;
-        if (content?.trim()) {
-          setAiMessages((prev) => {
-            // If the last message is also an assistant message, replace it
-            // (Claude may send intermediate text before tool calls, then final text)
-            const last = prev[prev.length - 1];
-            if (last?.type === "assistant" && !last.toolCall) {
-              return [
-                ...prev.slice(0, -1),
-                {
-                  id: last.id,
-                  type: "assistant" as const,
-                  content,
-                  timestamp: last.timestamp,
-                },
-              ];
-            }
-            return [
-              ...prev,
-              {
-                id: crypto.randomUUID(),
-                type: "assistant",
-                content,
-                timestamp: new Date().toISOString(),
-              },
-            ];
-          });
-        }
-        break;
-      }
-
-      case "ai-done":
-        setIsThinking(false);
-        setActiveToolCall(null);
-        break;
-
-      case "ai-error":
-        setIsThinking(false);
-        setActiveToolCall(null);
-        setAiMessages((prev) => [
-          ...prev,
-          {
-            id: crypto.randomUUID(),
-            type: "assistant",
-            content: `Error: ${data.message}`,
-            timestamp: new Date().toISOString(),
-          },
-        ]);
-        break;
-    }
-  }
-
   const clearMessages = useCallback(() => {
-    setAiMessages([]);
-  }, []);
+    setMessages([]);
+  }, [setMessages]);
 
-  return { sendMessage, aiMessages, isThinking, activeToolCall, clearMessages, historyLoaded };
+  return {
+    sendMessage,
+    aiMessages,
+    isThinking,
+    activeToolCall: null, // No longer tracked separately — tool state is in message parts
+    clearMessages,
+    historyLoaded,
+    status,
+    error,
+  };
 }

@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 import { cjk } from "@streamdown/cjk";
 import { code } from "@streamdown/code";
 import { math } from "@streamdown/math";
-import { mermaid } from "@streamdown/mermaid";
+// mermaid loaded lazily — see useStreamdownPlugins below
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import {
   createContext,
@@ -322,19 +322,60 @@ export const MessageBranchPage = ({
 
 export type MessageResponseProps = ComponentProps<typeof Streamdown>;
 
-const streamdownPlugins = { cjk, code, math, mermaid };
+// Mermaid plugin (~200KB+) is loaded on demand only when mermaid code blocks are detected
+let mermaidPlugin: typeof import("@streamdown/mermaid")["mermaid"] | null = null;
+let mermaidPromise: Promise<typeof import("@streamdown/mermaid")["mermaid"]> | null = null;
+
+function getMermaidPlugin() {
+  if (mermaidPlugin) return mermaidPlugin;
+  if (!mermaidPromise) {
+    mermaidPromise = import("@streamdown/mermaid").then((m) => {
+      mermaidPlugin = m.mermaid;
+      return m.mermaid;
+    });
+  }
+  return null;
+}
+
+const basePlugins = { cjk, code, math };
+
+function useStreamdownPlugins(content?: string) {
+  const [plugins, setPlugins] = useState<Record<string, unknown>>(basePlugins);
+
+  useEffect(() => {
+    if (content && content.includes("```mermaid") && !mermaidPlugin) {
+      getMermaidPlugin();
+      mermaidPromise!.then((m) => {
+        setPlugins((prev) => ({ ...prev, mermaid: m }));
+      });
+    } else if (mermaidPlugin) {
+      setPlugins((prev) =>
+        prev.mermaid ? prev : { ...prev, mermaid: mermaidPlugin }
+      );
+    }
+  }, [content]);
+
+  return plugins;
+}
 
 export const MessageResponse = memo(
-  ({ className, ...props }: MessageResponseProps) => (
-    <Streamdown
-      className={cn(
-        "size-full [&>*:first-child]:mt-0 [&>*:last-child]:mb-0",
-        className
-      )}
-      plugins={streamdownPlugins}
-      {...props}
-    />
-  ),
+  ({ className, children, ...props }: MessageResponseProps) => {
+    const content = typeof children === "string" ? children : undefined;
+    const plugins = useStreamdownPlugins(content);
+
+    return (
+      <Streamdown
+        className={cn(
+          "size-full [&>*:first-child]:mt-0 [&>*:last-child]:mb-0",
+          className
+        )}
+        plugins={plugins}
+        {...props}
+      >
+        {children}
+      </Streamdown>
+    );
+  },
   (prevProps, nextProps) => prevProps.children === nextProps.children
 );
 
