@@ -3,7 +3,7 @@
 import { useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { PageTransition } from "@/components/ui/PageTransition";
+import { PageTransition } from "@/components/ui/page-transition";
 import { GeneralTab } from "@/components/settings/GeneralTab";
 import { StyleTab } from "@/components/settings/StyleTab";
 import { ScoringTab } from "@/components/settings/ScoringTab";

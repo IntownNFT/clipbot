@@ -10,8 +10,8 @@ import {
 } from "@dnd-kit/core";
 import { WeekView } from "@/components/calendar/WeekView";
 import { PostChip, type ScheduledPost } from "@/components/calendar/PostChip";
-import { PageTransition } from "@/components/ui/PageTransition";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { PageTransition } from "@/components/ui/page-transition";
+import { Skeleton } from "@/components/ui/skeleton";
 import { CalendarDays } from "lucide-react";
 
 function getWeekStart(date: Date): Date {

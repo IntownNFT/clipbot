@@ -1,6 +1,6 @@
 "use client";
 
-import { Card } from "@/components/ui/Card";
+import { Card } from "@/components/ui/card";
 import { CreditCard } from "lucide-react";
 
 export function BillingTab() {

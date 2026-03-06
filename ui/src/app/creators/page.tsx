@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { AddCreatorDialog } from "@/components/creators/AddCreatorDialog";
 import { NotificationQueue } from "@/components/creators/NotificationQueue";
 import { Button } from "@/components/ui/button";
-import { PageTransition } from "@/components/ui/PageTransition";
+import { PageTransition } from "@/components/ui/page-transition";
 import {
   PlusCircle,
   RefreshCw,

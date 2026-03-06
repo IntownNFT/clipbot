@@ -1,6 +1,6 @@
 "use client";
 
-import { Card } from "@/components/ui/Card";
+import { Card } from "@/components/ui/card";
 import { ClipPlayer } from "./ClipPlayer";
 import { Badge } from "@/components/ui/badge";
 import { formatDuration, formatFileSize, toMediaUrl } from "@/lib/utils";

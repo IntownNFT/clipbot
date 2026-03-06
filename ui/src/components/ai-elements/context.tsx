@@ -9,7 +9,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { Progress } from "@/components/ui/Progress";
+import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { createContext, useContext, useMemo } from "react";
 import { getUsage } from "tokenlens";

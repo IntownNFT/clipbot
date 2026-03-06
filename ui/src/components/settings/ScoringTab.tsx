@@ -1,6 +1,6 @@
 "use client";
 
-import { Card } from "@/components/ui/Card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RotateCcw } from "lucide-react";
 import type { SettingsState } from "@/hooks/useSettings";

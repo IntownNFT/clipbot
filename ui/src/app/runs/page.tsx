@@ -4,7 +4,7 @@ import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { Plus, MoreHorizontal, Layers } from "lucide-react";
-import { PageTransition } from "@/components/ui/PageTransition";
+import { PageTransition } from "@/components/ui/page-transition";
 import { useSpaces } from "@/hooks/useSpaces";
 
 export default function RunsPage() {

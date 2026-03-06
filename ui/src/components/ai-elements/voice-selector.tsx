@@ -20,7 +20,7 @@ import {
   DialogContent,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/Dialog";
+} from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import {

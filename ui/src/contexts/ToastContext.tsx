@@ -8,7 +8,7 @@ import {
   useRef,
   type ReactNode,
 } from "react";
-import { ToastContainer } from "@/components/ui/Toast";
+import { ToastContainer } from "@/components/ui/toast";
 
 export type ToastType = "success" | "error" | "info";
 

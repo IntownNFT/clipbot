@@ -1,6 +1,6 @@
 "use client";
 
-import { Card } from "@/components/ui/Card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatDuration } from "@/lib/utils";
 import { motion } from "motion/react";

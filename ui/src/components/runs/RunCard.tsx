@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Card } from "@/components/ui/Card";
+import { Card } from "@/components/ui/card";
 import { RunStatusBadge } from "./RunStatusBadge";
 import { timeAgo, extractVideoId, youtubeThumbUrl } from "@/lib/utils";
 import { Film } from "lucide-react";

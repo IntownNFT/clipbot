@@ -1,6 +1,6 @@
 "use client";
 
-import { Progress } from "@/components/ui/Progress";
+import { Progress } from "@/components/ui/progress";
 import { StepIndicator } from "./StepIndicator";
 import type { DownloadProgress } from "@/hooks/useRunStream";
 

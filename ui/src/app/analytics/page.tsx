@@ -13,7 +13,7 @@ import {
   Loader2,
   Sparkles,
 } from "lucide-react";
-import { PageTransition } from "@/components/ui/PageTransition";
+import { PageTransition } from "@/components/ui/page-transition";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
