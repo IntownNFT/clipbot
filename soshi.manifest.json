@@ -1,0 +1,176 @@
+{
+  "id": "clipbot",
+  "name": "Socials",
+  "icon": "film",
+  "color": "#FF453A",
+  "description": "Automated viral clip pipeline: YouTube video to AI analysis to clips to social publishing",
+  "configSchema": "./src/config/schema.ts",
+  "defaults": "./src/config/defaults.ts",
+  "mcpServer": "./src/mcp/server.ts",
+  "toolsPath": "./ui/src/lib/ai/tools.ts",
+  "dataDir": "~/.clipbot/data/",
+
+  "configFields": [
+    { "key": "niche", "label": "Content Niche", "type": "select", "group": "Pipeline", "options": ["cannabis", "general", "tech", "fitness", "cooking"], "defaultValue": "" },
+    { "key": "defaultPlatforms", "label": "Default Platforms", "type": "multiselect", "group": "Pipeline", "options": ["tiktok", "youtube", "instagram", "facebook"], "defaultValue": ["tiktok", "youtube", "instagram"] },
+    { "key": "defaultQuality", "label": "Output Quality", "type": "select", "group": "Pipeline", "options": ["2160p", "1080p", "720p", "480p"], "defaultValue": "1080" },
+    { "key": "defaultMaxClips", "label": "Max Clips per Video", "type": "slider", "group": "Pipeline", "min": 1, "max": 15, "step": 1, "defaultValue": 5 },
+    { "key": "defaultMinScore", "label": "Minimum Virality Score", "type": "slider", "group": "Pipeline", "min": 1, "max": 10, "step": 1, "defaultValue": 7 },
+    { "key": "defaultMaxDuration", "label": "Max Clip Duration (sec)", "type": "slider", "group": "Pipeline", "min": 15, "max": 180, "step": 1, "defaultValue": 59 },
+    { "key": "padBefore", "label": "Pad Before (sec)", "type": "slider", "group": "Pipeline", "min": 0, "max": 5, "step": 0.5, "defaultValue": 1.5 },
+    { "key": "padAfter", "label": "Pad After (sec)", "type": "slider", "group": "Pipeline", "min": 0, "max": 5, "step": 0.5, "defaultValue": 0.5 },
+    { "key": "subtitles", "label": "Enable Subtitles", "type": "boolean", "group": "Pipeline", "defaultValue": true },
+
+    { "key": "backgroundFillStyle", "label": "Background Fill Style", "type": "select", "group": "Style", "options": ["center-crop", "blurred-zoom", "mirror-reflection", "split-fill"], "defaultValue": "blurred-zoom" },
+    { "key": "captionMode", "label": "Caption Mode", "type": "select", "group": "Style", "options": ["overlay", "burn-in"], "defaultValue": "overlay" },
+
+    { "key": "captionFontFamily", "label": "Caption Font", "type": "select", "group": "Caption Styling", "options": ["Inter", "Montserrat", "Roboto", "Poppins", "Oswald", "Bangers"], "defaultValue": "Montserrat" },
+    { "key": "captionFontSize", "label": "Caption Font Size", "type": "slider", "group": "Caption Styling", "min": 32, "max": 120, "step": 1, "defaultValue": 64 },
+    { "key": "captionActiveColor", "label": "Active Word Color", "type": "color", "group": "Caption Styling", "defaultValue": "#FFFF00" },
+    { "key": "captionInactiveColor", "label": "Inactive Word Color", "type": "color", "group": "Caption Styling", "defaultValue": "#FFFFFF" },
+    { "key": "captionOutlineColor", "label": "Outline Color", "type": "color", "group": "Caption Styling", "defaultValue": "#000000" },
+    { "key": "captionPosition", "label": "Caption Position", "type": "select", "group": "Caption Styling", "options": ["top", "center", "bottom"], "defaultValue": "bottom" },
+    { "key": "captionWordsPerLine", "label": "Words per Line", "type": "slider", "group": "Caption Styling", "min": 2, "max": 8, "step": 1, "defaultValue": 4 },
+    { "key": "captionAnimation", "label": "Caption Animation", "type": "select", "group": "Caption Styling", "options": ["karaoke-highlight", "word-pop", "typewriter", "simple-fade"], "defaultValue": "karaoke-highlight" },
+
+    { "key": "hookFontSize", "label": "Hook Font Size", "type": "slider", "group": "Hook Text", "min": 24, "max": 80, "step": 1, "defaultValue": 48 },
+    { "key": "hookColor", "label": "Hook Text Color", "type": "color", "group": "Hook Text", "defaultValue": "#FFFFFF" },
+    { "key": "hookPosition", "label": "Hook Position", "type": "select", "group": "Hook Text", "options": ["top", "center"], "defaultValue": "top" },
+
+    { "key": "scoringWeights.hook", "label": "Hook Weight", "type": "slider", "group": "Scoring", "min": 0, "max": 5, "step": 0.5, "defaultValue": 3 },
+    { "key": "scoringWeights.standalone", "label": "Standalone Weight", "type": "slider", "group": "Scoring", "min": 0, "max": 5, "step": 0.5, "defaultValue": 2 },
+    { "key": "scoringWeights.controversy", "label": "Controversy Weight", "type": "slider", "group": "Scoring", "min": 0, "max": 5, "step": 0.5, "defaultValue": 1 },
+    { "key": "scoringWeights.education", "label": "Education Weight", "type": "slider", "group": "Scoring", "min": 0, "max": 5, "step": 0.5, "defaultValue": 2 },
+    { "key": "scoringWeights.emotion", "label": "Emotion Weight", "type": "slider", "group": "Scoring", "min": 0, "max": 5, "step": 0.5, "defaultValue": 2 },
+    { "key": "scoringWeights.twist", "label": "Twist Weight", "type": "slider", "group": "Scoring", "min": 0, "max": 5, "step": 0.5, "defaultValue": 1 },
+    { "key": "scoringWeights.quotable", "label": "Quotable Weight", "type": "slider", "group": "Scoring", "min": 0, "max": 5, "step": 0.5, "defaultValue": 1 },
+    { "key": "scoringWeights.visual", "label": "Visual Weight", "type": "slider", "group": "Scoring", "min": 0, "max": 5, "step": 0.5, "defaultValue": 1 },
+    { "key": "scoringWeights.nicheBonus", "label": "Niche Bonus Weight", "type": "slider", "group": "Scoring", "min": 0, "max": 3, "step": 0.5, "defaultValue": 1 }
+  ],
+
+  "credentials": [
+    { "key": "claudeApiKey", "label": "Claude API Key", "env": "ANTHROPIC_API_KEY" },
+    { "key": "lateApiKey", "label": "Late.dev API Key", "env": "LATE_API_KEY" }
+  ],
+
+  "events": [
+    {
+      "name": "clip_published",
+      "description": "A clip was published to one or more social platforms",
+      "schema": {
+        "clipId": "string",
+        "runId": "string",
+        "title": "string",
+        "platforms": "string[]",
+        "viralityScore": "number"
+      }
+    },
+    {
+      "name": "run_complete",
+      "description": "A pipeline run finished processing a video",
+      "schema": {
+        "runId": "string",
+        "sourceUrl": "string",
+        "clipCount": "number",
+        "status": "string"
+      }
+    },
+    {
+      "name": "run_failed",
+      "description": "A pipeline run failed",
+      "schema": {
+        "runId": "string",
+        "sourceUrl": "string",
+        "error": "string"
+      }
+    },
+    {
+      "name": "creator_video_detected",
+      "description": "A tracked creator uploaded a new video",
+      "schema": {
+        "creatorId": "string",
+        "channelName": "string",
+        "videoUrl": "string",
+        "title": "string"
+      }
+    },
+    {
+      "name": "scheduled_post_due",
+      "description": "A scheduled post is due for publishing",
+      "schema": {
+        "postId": "string",
+        "clipTitle": "string",
+        "platforms": "string[]",
+        "scheduledFor": "string"
+      }
+    }
+  ],
+
+  "actions": [
+    {
+      "name": "process_video",
+      "description": "Download, analyze, clip, and optionally publish a YouTube video",
+      "tool": "process_video",
+      "params": {
+        "url": "string",
+        "spaceId?": "string",
+        "force?": "boolean"
+      }
+    },
+    {
+      "name": "publish_clip",
+      "description": "Publish a clip to social platforms via Late.dev",
+      "tool": "publish_clip",
+      "params": {
+        "runId": "string",
+        "clipIndex": "number",
+        "platforms": "string[]",
+        "scheduledFor?": "string"
+      }
+    },
+    {
+      "name": "schedule_clip",
+      "description": "Schedule a clip for posting at a specific time",
+      "tool": "schedule_clip",
+      "params": {
+        "runId": "string",
+        "clipIndex": "number",
+        "clipTitle": "string",
+        "platforms": "string[]",
+        "scheduledFor": "string"
+      }
+    },
+    {
+      "name": "add_creator",
+      "description": "Add a YouTube creator to track for new videos",
+      "tool": "add_creator",
+      "params": {
+        "channelName": "string",
+        "channelUrl": "string",
+        "channelId?": "string",
+        "autoProcess?": "boolean"
+      }
+    },
+    {
+      "name": "cancel_run",
+      "description": "Cancel an in-progress pipeline run",
+      "tool": "cancel_run",
+      "params": {
+        "runId": "string"
+      }
+    }
+  ],
+
+  "routerKeywords": [
+    "clip", "clips", "clipping",
+    "video", "videos",
+    "publish", "post", "posting",
+    "tiktok", "youtube", "instagram", "reel", "reels", "short", "shorts",
+    "creator", "creators", "channel",
+    "viral", "virality", "score",
+    "schedule", "scheduled",
+    "pipeline", "run", "process",
+    "caption", "captions", "subtitle", "subtitles",
+    "niche", "Late.dev", "late"
+  ]
+}
