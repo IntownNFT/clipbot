@@ -1,5 +1,6 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { NOTIFICATIONS_FILE } from "./paths";
+import { soshiEvents } from '../../../src/events/emitter.js';
 
 export interface VideoNotification {
   id: string;
@@ -33,6 +34,7 @@ export async function addNotification(notification: VideoNotification): Promise<
   if (notifications.some((n) => n.videoId === notification.videoId)) return;
   notifications.push(notification);
   await saveNotifications(notifications);
+  soshiEvents.emit('creator_video_detected', { creatorId: notification.creatorId, channelName: notification.creatorName, videoUrl: notification.videoUrl, title: notification.videoTitle });
 }
 
 export async function updateNotification(id: string, updates: Partial<VideoNotification>): Promise<VideoNotification | null> {
