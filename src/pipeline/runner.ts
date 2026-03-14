@@ -16,6 +16,7 @@ import { uploadAndPost } from "../modules/publisher.js";
 import { createInitialState, saveState } from "./state.js";
 import { ensureDir } from "../utils/fs.js";
 import { log } from "../utils/logger.js";
+import { soshiEvents } from '../events/emitter.js';
 import type { ViralMoment } from "../types/clip.js";
 
 export interface RunOptions {
@@ -248,6 +249,10 @@ export async function runPipeline(
     state.status = "complete";
     state.completedAt = new Date().toISOString();
     await saveState(state, outputDir);
+    soshiEvents.emit('run_complete', { runId: state.runId ?? outputDir, sourceUrl: state.sourceUrl ?? '', clipCount: state.clips?.length ?? 0, status: 'complete' });
+    for (const post of posts) {
+      soshiEvents.emit('clip_published', { clipId: String(post.clipIndex), runId: state.runId ?? outputDir, title: '', platforms: post.platforms?.map((p: any) => p.platform) ?? [], viralityScore: 0 });
+    }
 
     return { state, moments, clips, posts };
   } catch (err) {
@@ -257,6 +262,7 @@ export async function runPipeline(
       message: err instanceof Error ? err.message : String(err),
     };
     await saveState(state, outputDir).catch(() => {});
+    soshiEvents.emit('run_failed', { runId: state.runId ?? outputDir, sourceUrl: state.sourceUrl ?? '', error: err instanceof Error ? err.message : String(err) });
     throw err;
   }
 }

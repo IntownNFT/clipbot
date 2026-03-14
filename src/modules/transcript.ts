@@ -117,7 +117,12 @@ async function fetchJson3Transcript(
 
     const json3Path = `${outPath}.en.json3`;
     const raw = await readFile(json3Path, "utf-8");
-    const data = JSON.parse(raw) as { events: Json3Event[] };
+    let data: { events: Json3Event[] };
+    try {
+      data = JSON.parse(raw) as { events: Json3Event[] };
+    } catch {
+      throw new Error(`Failed to parse YouTube transcript JSON from ${json3Path}`);
+    }
 
     await rm(json3Path, { force: true });
 

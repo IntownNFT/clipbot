@@ -1,5 +1,6 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { SCHEDULE_FILE } from "./paths";
+import { soshiEvents } from '../../../src/events/emitter.js';
 
 export interface ScheduledPost {
   id: string;
@@ -30,6 +31,7 @@ export async function addScheduledPost(post: ScheduledPost): Promise<void> {
   const posts = await getScheduledPosts();
   posts.push(post);
   await saveScheduledPosts(posts);
+  soshiEvents.emit('scheduled_post_due', { postId: post.id, clipTitle: post.clipTitle, platforms: post.platforms, scheduledFor: post.scheduledFor });
 }
 
 export async function updateScheduledPost(id: string, updates: Partial<ScheduledPost>): Promise<ScheduledPost | null> {
