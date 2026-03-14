@@ -44,7 +44,13 @@ async function lateRequest<T>(
     throw new Error(`Late API ${res.status}: ${body}`);
   }
 
-  return (await res.json()) as T;
+  let body;
+  try {
+    body = await res.json();
+  } catch {
+    throw new Error(`Late.dev returned invalid JSON (HTTP ${res.status})`);
+  }
+  return body as T;
 }
 
 async function uploadMedia(

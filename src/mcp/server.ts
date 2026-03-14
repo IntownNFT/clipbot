@@ -144,7 +144,12 @@ server.tool(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ url, spaceId, force: force ?? false }),
     });
-    const data = await res.json();
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      return { content: [{ type: "text", text: JSON.stringify({ error: `Server returned invalid response (HTTP ${res.status})` }) }] };
+    }
     return {
       content: [{ type: "text", text: JSON.stringify(res.ok ? { success: true, runId: data.runId } : { error: data.error }) }],
     };
@@ -445,7 +450,12 @@ server.tool(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ clipIndices: [clipIndex], platforms, scheduledFor }),
     });
-    const data = await res.json();
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      return { content: [{ type: "text", text: JSON.stringify({ error: `Server returned invalid response (HTTP ${res.status})` }) }] };
+    }
     return {
       content: [{ type: "text", text: JSON.stringify(res.ok ? { success: true, results: data.results } : { error: data.error }) }],
     };
