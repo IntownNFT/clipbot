@@ -121,7 +121,12 @@ export function PromptInput({ onSubmit, onChat, spaceId: externalSpaceId, fullWi
         body: JSON.stringify({ url: input, spaceId }),
       });
 
-      const data = await res.json();
+      let data: Record<string, unknown>;
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error(res.ok ? "Empty response from server" : `Server error (${res.status})`);
+      }
 
       if (res.status === 409 && data.existingRunId) {
         if (data.alreadyComplete) {
@@ -130,12 +135,13 @@ export function PromptInput({ onSubmit, onChat, spaceId: externalSpaceId, fullWi
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ url: input, spaceId, force: true }),
           });
-          const retryData = await retryRes.json();
+          let retryData: Record<string, unknown>;
+          try { retryData = await retryRes.json(); } catch { retryData = {}; }
           if (retryRes.ok) {
             setInput("");
-            onSubmit(retryData.runId, input);
+            onSubmit(retryData.runId as string, input);
           } else {
-            setError(retryData.error || "Failed to start pipeline");
+            setError((retryData.error as string) || "Failed to start pipeline");
           }
         } else {
           setError("This video is already being processed");
@@ -145,11 +151,11 @@ export function PromptInput({ onSubmit, onChat, spaceId: externalSpaceId, fullWi
       }
 
       if (!res.ok) {
-        throw new Error(data.error || "Failed to start pipeline");
+        throw new Error((data.error as string) || "Failed to start pipeline");
       }
 
       setInput("");
-      onSubmit(data.runId, input);
+      onSubmit(data.runId as string, input);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     }

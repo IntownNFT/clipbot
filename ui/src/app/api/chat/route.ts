@@ -34,34 +34,34 @@ export async function POST(req: Request) {
 
   const config = await getEffectiveConfig();
 
-  const apiKey = process.env.ANTHROPIC_API_KEY || config.claudeApiKey;
+  // Prefer OAuth token (flat-rate Claude setup-token) over per-call API key
   const oauthToken = process.env.CLAUDE_OAUTH_TOKEN;
+  const apiKey = !oauthToken ? (process.env.ANTHROPIC_API_KEY || config.claudeApiKey) : undefined;
 
   if (!apiKey && !oauthToken) {
     return Response.json(
-      { error: "No API key configured. Go to /login to set up." },
+      { error: "No API key configured. Set CLAUDE_OAUTH_TOKEN or ANTHROPIC_API_KEY." },
       { status: 400 }
     );
   }
 
-  // Check subscription usage if in Convex mode (SaaS)
+  // Check subscription usage if in Convex mode (SaaS) — best effort, don't block chat
   const userEmail = body.userEmail as string | undefined;
-  if (isConvexMode()) {
-    if (!userEmail) {
-      return Response.json(
-        { error: "Authentication required. Please sign in." },
-        { status: 401 }
-      );
-    }
-    const convex = getConvexClient();
-    if (convex) {
-      const result = await convex.mutation(api.users.useMessage, { email: userEmail });
-      if (!result.allowed) {
-        return Response.json(
-          { error: "Message limit reached. Upgrade your plan for more messages." },
-          { status: 402 }
-        );
+  if (isConvexMode() && userEmail) {
+    try {
+      const convex = getConvexClient();
+      if (convex) {
+        const result = await convex.mutation(api.users.useMessage, { email: userEmail });
+        if (!result.allowed) {
+          return Response.json(
+            { error: "Message limit reached. Upgrade your plan for more messages." },
+            { status: 402 }
+          );
+        }
       }
+    } catch (e) {
+      // Convex check failed — allow message through, don't block the user
+      console.warn("Convex usage check failed:", e);
     }
   }
 
@@ -76,15 +76,15 @@ export async function POST(req: Request) {
     spaceName,
   });
 
-  // Support both auth methods
-  const anthropic = apiKey
-    ? createAnthropic({ apiKey })
-    : createAnthropic({
-        authToken: oauthToken!,
+  // Prefer OAuth (flat-rate setup-token) over per-call API key
+  const anthropic = oauthToken
+    ? createAnthropic({
+        authToken: oauthToken,
         headers: { "anthropic-beta": "oauth-2025-04-20" },
-      });
+      })
+    : createAnthropic({ apiKey: apiKey! });
 
-  // Save the latest user message for persistence
+  // Save the latest user message for persistence (best-effort — fails silently on serverless)
   if (threadId && body.messages?.length > 0) {
     const lastMsg = body.messages[body.messages.length - 1];
     if (lastMsg?.role === "user") {
@@ -93,13 +93,17 @@ export async function POST(req: Request) {
         .map((p: { text: string }) => p.text)
         .join("\n") ?? lastMsg.content ?? "";
       if (textContent) {
-        await saveChatMessage(threadId, {
-          id: lastMsg.id ?? crypto.randomUUID(),
-          threadId,
-          role: "user",
-          content: textContent,
-          timestamp: new Date().toISOString(),
-        });
+        try {
+          await saveChatMessage(threadId, {
+            id: lastMsg.id ?? crypto.randomUUID(),
+            threadId,
+            role: "user",
+            content: textContent,
+            timestamp: new Date().toISOString(),
+          });
+        } catch {
+          // File write fails on serverless (read-only fs) — that's OK
+        }
       }
     }
   }
@@ -112,20 +116,24 @@ export async function POST(req: Request) {
     stopWhen: stepCountIs(10),
     temperature: config.claudeTemperature ?? 0.7,
     onFinish: async ({ text, toolCalls }) => {
-      // Persist the assistant response
+      // Persist the assistant response (best-effort — fails silently on serverless)
       if (threadId && (text || (toolCalls && toolCalls.length > 0))) {
-        await saveChatMessage(threadId, {
-          id: crypto.randomUUID(),
-          threadId,
-          role: "assistant",
-          content: text || "",
-          toolCalls: toolCalls?.map((tc) => ({
-            id: tc.toolCallId,
-            name: tc.toolName,
-            input: (tc as { input?: unknown }).input as Record<string, unknown> ?? {},
-          })),
-          timestamp: new Date().toISOString(),
-        });
+        try {
+          await saveChatMessage(threadId, {
+            id: crypto.randomUUID(),
+            threadId,
+            role: "assistant",
+            content: text || "",
+            toolCalls: toolCalls?.map((tc) => ({
+              id: tc.toolCallId,
+              name: tc.toolName,
+              input: (tc as { input?: unknown }).input as Record<string, unknown> ?? {},
+            })),
+            timestamp: new Date().toISOString(),
+          });
+        } catch {
+          // File write fails on serverless (read-only fs) — that's OK
+        }
       }
     },
   });

@@ -3,6 +3,9 @@ import { stat, open } from "node:fs/promises";
 import path from "node:path";
 import { getOutputDir } from "@/lib/paths";
 
+const WORKER_URL = process.env.WORKER_URL;
+const WORKER_AUTH = process.env.WORKER_AUTH_TOKEN;
+const isServerless = !!process.env.VERCEL;
 const OUTPUT_DIR = getOutputDir();
 
 export async function GET(
@@ -10,9 +13,47 @@ export async function GET(
   { params }: { params: Promise<{ path: string[] }> }
 ) {
   const { path: segments } = await params;
-  const filePath = path.join(OUTPUT_DIR, ...segments);
+  const relativePath = segments.join("/");
 
-  // Security: ensure path doesn't escape output directory
+  // ── Proxy to worker ────────────────────────────────────────────────
+  if (isServerless && WORKER_URL) {
+    const headers: Record<string, string> = {};
+    if (WORKER_AUTH) headers["Authorization"] = `Bearer ${WORKER_AUTH}`;
+    // Forward range header for video seeking
+    const range = req.headers.get("range");
+    if (range) headers["Range"] = range;
+
+    try {
+      const workerRes = await fetch(`${WORKER_URL}/files/${relativePath}`, { headers });
+
+      if (!workerRes.ok) {
+        return new NextResponse("Not found", { status: 404 });
+      }
+
+      // Pass through the response with all headers
+      const responseHeaders = new Headers();
+      for (const [key, value] of workerRes.headers.entries()) {
+        if (["content-type", "content-length", "content-range", "accept-ranges"].includes(key.toLowerCase())) {
+          responseHeaders.set(key, value);
+        }
+      }
+      responseHeaders.set("Cache-Control", "public, max-age=86400");
+
+      return new NextResponse(workerRes.body, {
+        status: workerRes.status,
+        headers: responseHeaders,
+      });
+    } catch {
+      return new NextResponse("Worker unreachable", { status: 502 });
+    }
+  }
+
+  if (isServerless) {
+    return new NextResponse("Not found", { status: 404 });
+  }
+
+  // ── Local mode ─────────────────────────────────────────────────────
+  const filePath = path.join(OUTPUT_DIR, ...segments);
   const resolved = path.resolve(filePath);
   if (!resolved.startsWith(OUTPUT_DIR)) {
     return new NextResponse("Forbidden", { status: 403 });
@@ -24,32 +65,23 @@ export async function GET(
 
     const ext = path.extname(resolved).toLowerCase();
     const mimeTypes: Record<string, string> = {
-      ".mp4": "video/mp4",
-      ".webm": "video/webm",
-      ".jpg": "image/jpeg",
-      ".jpeg": "image/jpeg",
-      ".png": "image/png",
-      ".gif": "image/gif",
+      ".mp4": "video/mp4", ".webm": "video/webm",
+      ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+      ".png": "image/png", ".gif": "image/gif",
     };
     const contentType = mimeTypes[ext] || "application/octet-stream";
-
     const range = req.headers.get("range");
 
     if (range) {
       const match = range.match(/bytes=(\d+)-(\d*)/);
-      if (!match) {
-        return new NextResponse("Invalid range", { status: 416 });
-      }
-
+      if (!match) return new NextResponse("Invalid range", { status: 416 });
       const start = parseInt(match[1], 10);
       const end = match[2] ? parseInt(match[2], 10) : fileSize - 1;
       const chunkSize = end - start + 1;
-
       const file = await open(resolved, "r");
       const buffer = Buffer.alloc(chunkSize);
       await file.read(buffer, 0, chunkSize, start);
       await file.close();
-
       return new NextResponse(buffer, {
         status: 206,
         headers: {
@@ -61,7 +93,6 @@ export async function GET(
       });
     }
 
-    // Full file
     const file = await open(resolved, "r");
     const buffer = Buffer.alloc(fileSize);
     await file.read(buffer, 0, fileSize, 0);

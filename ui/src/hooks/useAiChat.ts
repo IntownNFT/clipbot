@@ -140,8 +140,8 @@ export function useAiChat(threadId: string | null) {
     };
   }, [threadId, setMessages]);
 
-  // In cloud mode, block sending until session is loaded (so userEmail is available)
-  const sessionReady = !isCloudMode || !!userEmail;
+  // Allow sending even without auth — usage tracking is best-effort
+  const sessionReady = true;
 
   const sendMessage = useCallback(
     (message: string, _spaceId?: string | null) => {
