@@ -28,9 +28,8 @@ COPY tsconfig.json ./
 COPY src/ ./src/
 COPY worker.ts ./
 
-# Copy cookies.txt if it exists (for YouTube auth on datacenter IPs)
-# Goes to /app/ (CWD) since /data/ is a volume mount that overwrites at runtime
-COPY cookies.tx[t] /app/cookies.txt
+# Cookies are uploaded via PUT /cookies endpoint to persistent volume at /data/cookies.txt
+# Do NOT bake cookies into the image — they expire quickly
 
 # Point CLI to use /data as its home dir (persistent volume on Fly.io)
 # This makes it write output to /data/output/, read cookies from /data/cookies.txt

@@ -10,7 +10,7 @@
 
 import http from "node:http";
 import { spawn } from "node:child_process";
-import { readFile, readdir, stat, open, mkdir } from "node:fs/promises";
+import { readFile, readdir, stat, open, mkdir, writeFile, access } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import dotenv from "dotenv";
@@ -54,12 +54,23 @@ function parseBody(req: http.IncomingMessage): Promise<Record<string, unknown>> 
   });
 }
 
+function parseRawBody(req: http.IncomingMessage): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    req.on("data", (c) => chunks.push(c));
+    req.on("end", () => resolve(Buffer.concat(chunks).toString()));
+    req.on("error", reject);
+  });
+}
+
+const COOKIES_PATH = path.join(process.env.CLIPBOT_HOME || __dirname, "cookies.txt");
+
 function json(res: http.ServerResponse, data: unknown, status = 200) {
   res.writeHead(status, {
     "Content-Type": "application/json",
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS",
   });
   res.end(JSON.stringify(data));
 }
@@ -306,7 +317,7 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(204, {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Headers": "Content-Type, Authorization",
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS",
     });
     res.end();
     return;
@@ -340,6 +351,33 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "GET" && pathname.startsWith("/files/")) {
     const filePath = decodeURIComponent(pathname.slice("/files/".length));
     return handleServeFile(req, res, filePath);
+  }
+
+  // PUT /cookies — upload cookies.txt content
+  if (req.method === "PUT" && pathname === "/cookies") {
+    const body = await parseRawBody(req);
+    if (!body.trim()) return json(res, { error: "Empty body" }, 400);
+    try {
+      await mkdir(path.dirname(COOKIES_PATH), { recursive: true });
+      await writeFile(COOKIES_PATH, body);
+      console.log(`[worker] Cookies updated at ${COOKIES_PATH} (${body.length} bytes)`);
+      return json(res, { ok: true, path: COOKIES_PATH, size: body.length });
+    } catch (err) {
+      return json(res, { error: `Failed to write cookies: ${err}` }, 500);
+    }
+  }
+
+  // GET /cookies/status — check if cookies exist
+  if (req.method === "GET" && pathname === "/cookies/status") {
+    try {
+      await access(COOKIES_PATH);
+      const st = await stat(COOKIES_PATH);
+      const content = await readFile(COOKIES_PATH, "utf-8");
+      const hasAuth = content.includes("LOGIN_INFO") || content.includes("__Secure-1PSID");
+      return json(res, { exists: true, size: st.size, hasAuth, path: COOKIES_PATH, modified: st.mtime.toISOString() });
+    } catch {
+      return json(res, { exists: false, path: COOKIES_PATH });
+    }
   }
 
   // GET /health
